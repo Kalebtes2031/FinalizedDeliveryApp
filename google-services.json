@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "704310350921",
+    "project_id": "yason-7c405",
+    "storage_bucket": "yason-7c405.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:704310350921:android:662255fcf420b763a61b98",
+        "android_client_info": {
+          "package_name": "dev.expo.mobileapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAlBMTgwbiWspXy4UAq2Jl9nE2ir9aPQiA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

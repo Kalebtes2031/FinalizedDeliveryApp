@@ -1,0 +1,16 @@
+{
+    "active":"ትዕዛዞች ይከታተሉ",
+    "completed":"የተቀበሉት ትዕዛዞች",
+    "noorder":"ምንም ትእዛዝ የለም",
+    "loading":"በትዕግስት ይጠብቁ...",
+    "await":"አድራሽ ሰው አልተመደበም",
+    "br":"ብር",
+    "totalamount":"ጠቅላላ ዋጋ",
+    "subtotal":"ድምር ዋጋ",
+    "summary":"የትእዛዝ አጠቃላይ መረጃ",
+    "delivered":"ደርሶኛል",
+    "prepared":"ተዘጋጅቱአል",
+    "confirmed":"ታዙዋል",
+    "nocompletedelivery":"የተጠናቀቀ ትዕዛዝ የለም።",
+    "noactivedelivery":"አዲስ ማድረስ የሚፈልግ ትዕዛዝ የለም።"
+}

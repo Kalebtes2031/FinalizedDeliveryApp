@@ -1,0 +1,22 @@
+{
+  "your": "Your Order is in process",
+  "thank":"Thank you!",
+  "number":"ORDER NUMBER",
+  "date":"DATE",
+  "total":"Total Price",
+  "br":"Br",
+  "payment":"PAYMENT METHOD",
+  "bank":"Bank Transfer",
+  "cash":"Cash on Delivery",
+  "address":"Order Address",
+  "name":"NAME",
+  "email":"EMAIL",
+  "phone":"PHONE No",
+  "track":"Track Order",
+  "history":"Order History",
+  "thereisno":"There is no Order History",
+  "scheduled":"Scheduled",
+  "orderestatus":"Order Status",
+  "paymentstatus":"Payment Status",
+  "items":"Items"
+}
