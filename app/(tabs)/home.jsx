@@ -12,7 +12,7 @@ import {
   ImageBackground,
   TouchableOpacity,
   RefreshControl,
-  FlatList,
+  ActivityIndicator,
 } from "react-native";
 
 import {
@@ -29,15 +29,15 @@ import {
   fetchNewImages,
   fetchOrdersHistoryTotal,
   fetchPopularProducts,
-  fetchSameCategoryProducts,
-  USER_PROFILE,
+  changeAvailability,
+  fetchAvailability,
 } from "@/hooks/useFetch";
 import { useColorScheme } from "@/hooks/useColorScheme";
 import { useGlobalContext } from "@/context/GlobalProvider";
 import { useRouter } from "expo-router";
 import { useCart } from "@/context/CartProvider";
 import { Ionicons } from "@expo/vector-icons";
-
+import AvailabilityToggle from "@/components/AvailabilityToggle";
 import LocationTracker from "@/LocationTracker";
 import { useTranslation } from "react-i18next";
 
@@ -233,8 +233,9 @@ export default function HomeScreen() {
           {greeting}
         </Text>
         <Text className="italic ml-2 text-primary">
-           {user?.first_name} {user?.last_name}
+          {user?.first_name} {user?.last_name}
         </Text>
+       
       </View>
 
       <View className="pb-12">
@@ -248,7 +249,7 @@ export default function HomeScreen() {
               textAlign: "start",
             }}
           >
-            {t('orders')}
+            {t("orders")}
           </Text>
         </View>
         {/* two cards */}
@@ -286,7 +287,7 @@ export default function HomeScreen() {
                 }}
               >
                 {" "}
-                {t('assigned')}
+                {t("assigned")}
               </Text>
             </View>
           </TouchableOpacity>
@@ -316,15 +317,13 @@ export default function HomeScreen() {
                 }}
               >
                 {" "}
-                {t('accepted')}
+                {t("accepted")}
               </Text>
             </View>
           </TouchableOpacity>
         </View>
       </View>
-      <TouchableOpacity
-        onPress={()=>route.push('/(tabs)/orderinfo')}
-      >
+      <TouchableOpacity onPress={() => route.push("/(tabs)/orderinfo")}>
         <View
           style={{
             flexDirection: "column",
@@ -355,16 +354,16 @@ export default function HomeScreen() {
               {" "}
               {totalOrders.length}
             </Text>
-            <Text style={{ textAlign: "center", color: "#445399", fontSize: 18 }}>
+            <Text
+              style={{ textAlign: "center", color: "#445399", fontSize: 18 }}
+            >
               {" "}
-              {t('total')}
+              {t("total")}
             </Text>
           </View>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity
-        onPress={()=>route.push('/(tabs)/orderdelivered')}
-      >
+      <TouchableOpacity onPress={() => route.push("/(tabs)/orderdelivered")}>
         <View
           style={{
             flexDirection: "column",
@@ -391,10 +390,15 @@ export default function HomeScreen() {
               // padding:2,
             }}
           >
-            <Text style={{ color: "#4CAF50", fontSize: 22 }}> {deliveredOrders.length}</Text>
-            <Text style={{ textAlign: "center", color: "#4CAF50", fontSize: 18 }}>
+            <Text style={{ color: "#4CAF50", fontSize: 22 }}>
               {" "}
-             {t('delivered')}
+              {deliveredOrders.length}
+            </Text>
+            <Text
+              style={{ textAlign: "center", color: "#4CAF50", fontSize: 18 }}
+            >
+              {" "}
+              {t("delivered")}
             </Text>
           </View>
         </View>

@@ -37,6 +37,7 @@ import axios from "axios";
 import { useWatchlist } from "@/context/WatchlistProvider";
 import { useTranslation } from "react-i18next";
 import LanguageToggle from "@/components/LanguageToggle";
+import AvailabilityToggle from "./AvailabilityToggle";
 
 const Header = () => {
   const { t, i18n } = useTranslation("header");
@@ -182,6 +183,7 @@ const Header = () => {
             { backgroundColor: colorScheme === "dark" ? "#333" : "#fff" },
           ]}
         >
+           <AvailabilityToggle />
           <TouchableOpacity onPress={() => route.push("/(tabs)/profile")}>
             <Ionicons name="person" size={24} color="#445399" />
           </TouchableOpacity>
@@ -477,9 +479,10 @@ const styles = StyleSheet.create({
   iconContainer: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "end",
+    justifyContent: "center",
     // width: 100,
     marginRight: 15,
+    gap:6,
   },
   iconWrapper: {
     position: "relative",

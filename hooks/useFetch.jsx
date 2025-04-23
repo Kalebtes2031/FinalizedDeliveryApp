@@ -234,6 +234,16 @@ export const scheduleDeliveryAndPickFromStore = async (orderId, date) => {
     return response.data;
 };
 
+export const fetchAvailability = async () => {
+  const response = await auth.get("delivery/availability/");
+  return response.data;
+};
+export const changeAvailability = async (status) => {
+  const response = await auth.patch("delivery/availability/",{
+    is_available:status
+  });
+  return response.data;
+};
 
 export const removeCartItem = async (itemId) => {
     const response = await api.delete(`cart/items/${itemId}/`);
