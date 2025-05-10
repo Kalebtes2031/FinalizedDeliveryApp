@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { getAccessToken, removeTokens, USER_PROFILE } from "@/hooks/useFetch";
+import { USER_PROFILE } from "@/hooks/useFetch";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {getAccessToken, removeTokens} from "@/hooks/tokenStorage";
 
 const GlobalContext = createContext();
 export const useGlobalContext = () => useContext(GlobalContext);

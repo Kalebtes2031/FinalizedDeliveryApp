@@ -10,8 +10,10 @@ import {
   Easing,
 } from "react-native";
 import { fetchAvailability, changeAvailability } from "@/hooks/useFetch";
+import { useTranslation } from "react-i18next";
 
 export default function AvailabilityToggle() {
+  const { i18n } = useTranslation()
   const [isAvailable, setIsAvailable] = useState(null);
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
@@ -100,7 +102,11 @@ export default function AvailabilityToggle() {
       >
         <View style={styles.content}>
           <Text style={styles.statusText}>
-            {isAvailable ? "Online" : "Unavailable"}
+            {isAvailable 
+            ?i18n.language=="en" ? "Online" : "በመስመር ላይ"
+            : i18n.language=="en" ? "Unavailable" : "አይገኙም"
+            }
+           
           </Text>
           <Animated.View
             style={[styles.track, { backgroundColor: interpolatedColor }]}

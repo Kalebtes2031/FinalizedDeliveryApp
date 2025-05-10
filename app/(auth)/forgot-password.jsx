@@ -4,10 +4,12 @@ import { View, StyleSheet, Alert } from "react-native";
 import { TextInput, Button, Text } from "react-native-paper";
 import { useRouter } from "expo-router";
 import axios from "axios";
+import { useTranslation } from "react-i18next";
 
-const baseUrl = "http://192.168.100.51:8000/account/"; // Adjust to your API base URL
+const baseUrl = "https://yasonbackend.yasonsc.com/account/"; // Adjust to your API base URL
 
 const ForgotPasswordScreen = () => {
+  const { t } = useTranslation("forgot");
   const router = useRouter();
   const [emailOrPhone, setEmailOrPhone] = useState("");
   const [channel, setChannel] = useState("email"); // 'sms' or 'email'
@@ -49,7 +51,7 @@ const ForgotPasswordScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Reset Password</Text>
+      <Text style={styles.title}>{t('reset')}</Text>
       <TextInput
         label={channel === "sms" ? "Phone Number" : "Email"}
         value={emailOrPhone}
@@ -57,7 +59,7 @@ const ForgotPasswordScreen = () => {
         style={styles.input}
         keyboardType={channel === "sms" ? "phone-pad" : "email-address"}
       />
-      <Button
+      {/* <Button
         mode="outlined"
         onPress={() => setChannel((prev) => (prev === "sms" ? "email" : "sms"))}
         style={styles.toggleButton}
@@ -65,7 +67,7 @@ const ForgotPasswordScreen = () => {
         <Text className="font-poppins-medium" style={{ color: "#445399" }}>
           Use {channel === "sms" ? "Email" : "SMS"} instead
         </Text>
-      </Button>
+      </Button> */}
       <Button
         mode="contained"
         onPress={handleSendOTP}
@@ -73,7 +75,7 @@ const ForgotPasswordScreen = () => {
         disabled={!emailOrPhone || loading}
         style={{backgroundColor: "#445399"}}
       >
-        <Text style={{ color: "white", }}>Send OTP</Text>
+        <Text style={{ color: "white", }}>{t('send')}</Text>
       </Button>
     </View>
   );

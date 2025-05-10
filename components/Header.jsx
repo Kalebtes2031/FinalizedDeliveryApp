@@ -29,10 +29,11 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import Feather from "@expo/vector-icons/Feather";
 import Octicons from "@expo/vector-icons/Octicons";
 import {
-  getAccessToken,
+ 
   updateUserProfile,
   updateUserProfileImage,
 } from "@/hooks/useFetch";
+import { getAccessToken } from "@/hooks/tokenStorage";
 import axios from "axios";
 import { useWatchlist } from "@/context/WatchlistProvider";
 import { useTranslation } from "react-i18next";

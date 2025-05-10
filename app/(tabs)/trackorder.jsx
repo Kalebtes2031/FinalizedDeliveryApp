@@ -141,7 +141,7 @@ const OrderTrackingScreen = () => {
               }}
               source={require("@/assets/images/yasonmap.jpg")}
             /> */}
-            <OrderMapViewDelivery order={item} deliveryPersonId={item?.delivery_person?.user?.id} />
+            {/* <OrderMapViewDelivery order={item} deliveryPersonId={item?.delivery_person?.user?.id} /> */}
             {/* <DeliveryLocationTracker deliveryPersonId="2" /> */}
 
           </View>

@@ -49,14 +49,11 @@ const SignIn = () => {
 
     setIsSubmitting(true);
     try {
+      console.log("→ Logging in with:", form);
       const result = await GET_AUTH(form);
-      console.log("Auth response:", result); // Check response structure
+      console.log("← JWT response data:", result); // Check response structure
 
-      // Store both tokens
-      await AsyncStorage.multiSet([
-        ["accessToken", result.access],
-        ["refreshToken", result.refresh],
-      ]);
+      
 
       // Fetch user profile after successful login
     const profile = await USER_PROFILE();
@@ -75,28 +72,32 @@ const SignIn = () => {
       
       setIsLogged(true);
     } catch (error) {
-      Toast.show({
-        type: "error",
-        text1: "Authentication failed",
-        text2: "Invalid credentials or server error",
-      });
+      console.error("JWT create failed:", {
+            status: err.response?.status,
+            body:   err.response?.data,
+          });
+          Toast.show({
+            type: "error",
+            text1: "Authentication failed",
+            text2: err.response?.data?.detail || JSON.stringify(err.response?.data) || "Server error",
+          });
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  useEffect(() => {
-    async function checkOnboarding() {
-      const check = await SecureStore.getItemAsync("onboardingCompleted");
-      console.log("onboardingCompleted:", check);
+  // useEffect(() => {
+  //   async function checkOnboarding() {
+  //     const check = await SecureStore.getItemAsync("onboardingCompleted");
+  //     console.log("onboardingCompleted:", check);
 
-      if (check === "true") {
-        await SecureStore.deleteItemAsync("onboardingCompleted");
-        console.log("Onboarding completed, deleting key.");
-      }
-    }
-    checkOnboarding();
-  }, []);
+  //     if (check === "true") {
+  //       await SecureStore.deleteItemAsync("onboardingCompleted");
+  //       console.log("Onboarding completed, deleting key.");
+  //     }
+  //   }
+  //   checkOnboarding();
+  // }, []);
 
   return (
     <SafeAreaView className="flex-1 bg-primary">

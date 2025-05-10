@@ -11,8 +11,7 @@ module.exports = function (api) {
     //       {
     //         root: ["./"],
     //         alias: {
-    //           "@": "./", // or wherever your "assets" folder is located relative to your project root
-    //         },
+    //           "@": "./", 
     //       },
     //     ],
     //   ],

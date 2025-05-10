@@ -3,13 +3,25 @@ import { useNavigation } from "@react-navigation/native";
 // hooks/useFetch.js
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useRouter } from "expo-router";
+import { setTokens, getAccessToken, getRefreshToken, removeTokens } from "@/hooks/tokenStorage";
+import Constants from "expo-constants";
 
-
-// const baseUrl = "https://malhibnewbackend.activetechet.com/";
-const baseUrl = "http://192.168.100.51:8000/";  //active wifi
+// const baseUrl = "https://yasonbackend.yasonsc.com/";
+// const baseUrl = "http://192.168.100.51:8000/";  //active wifi
 // const baseUrl = "http://192.168.1.3:8000/";  //home wifi
 // const baseUrl = "http://192.168.65.193:8000/";  //my data network
 // const baseUrl = "http://192.168.8.17:8000/";  //my data network
+
+const rawUrl = Constants.expoConfig?.extra?.apiUrl;
+if (!rawUrl) {
+    throw new Error(
+      "No API URL defined—did you forget to set EXPO_PUBLIC_API_URL in your eas.json preview profile?"
+    );
+  }
+  // ensure it ends with a slash
+const baseUrl = rawUrl.endsWith("/") ? rawUrl : `${rawUrl}/`;
+  
+
 
 const auth = axios.create({
     baseURL: baseUrl,
@@ -38,20 +50,20 @@ export const ActivateUser = async (c) => {
 //     return response.data;
 // };
 export const GET_AUTH = async (form) => {
-    try {
-      const response = await auth.post("auth/jwt/create/", form);
-      return response.data;
-    } catch (error) {
-      throw new Error(error.response?.data?.detail || "An error occurred");
-    }
+    const response = await auth.post("auth/jwt/create/", form);
+    await setTokens(response.data.access, response.data.refresh);
+    return response.data;
   };
+  
   
 
 
-export const setTokens = (accessToken, refreshToken) => {
-    sessionStorage.setItem("accessToken", accessToken);
-    sessionStorage.setItem("refreshToken", refreshToken);
-};
+//   export const setTokens = async (accessToken, refreshToken) => {
+//     await AsyncStorage.multiSet([
+//       ["accessToken", accessToken],
+//       ["refreshToken", refreshToken],
+//     ]);
+//   };
 
 //it's work is just to remove tokens from the local storage
 // export const removeTokens = () => {
@@ -59,22 +71,25 @@ export const setTokens = (accessToken, refreshToken) => {
 //     sessionStorage.removeItem("refreshToken");
 // };
   // Remove tokens
-  export const getAccessToken = async () => {
-    try {
-      return await AsyncStorage.getItem("accessToken");
-    } catch (error) {
-      console.error("Error getting token:", error);
-      return null;
-    }
-  };
+//   export const getAccessToken = async () => {
+//     try {
+//       return await AsyncStorage.getItem("accessToken");
+//     } catch (error) {
+//       console.error("Error getting token:", error);
+//       return null;
+//     }
+//   };
+//   export const getRefreshToken = async () => {
+//     return await AsyncStorage.getItem("refreshToken");
+//   };
   
-  export const removeTokens = async () => {
-    try {
-      await AsyncStorage.multiRemove(["accessToken", "refreshToken",]);
-    } catch (error) {
-      console.error("Error removing tokens:", error);
-    }
-  };
+//   export const removeTokens = async () => {
+//     try {
+//       await AsyncStorage.multiRemove(["accessToken", "refreshToken",]);
+//     } catch (error) {
+//       console.error("Error removing tokens:", error);
+//     }
+//   };
 
 
 export const CREATE_NEW_USER = async (credentials) => {
@@ -84,7 +99,7 @@ export const CREATE_NEW_USER = async (credentials) => {
 };
 export const CREATE_NEW_CUSTOMER = async (credentials) => {
     console.log('am i a problem:',credentials);
-    const response = await auth.post("account/register/", credentials);
+    const response = await auth.post("delivery/register/", credentials);
     return response.data;
 };
 export const USER_PROFILE = async () => {
@@ -178,7 +193,7 @@ export const fetchNewImages = async () => {
 
 
 export const whoami = async () => {
-    const accesstoken = sessionStorage.getItem("accessToken");
+    const accesstoken = getAccessToken();
 
     if (!accesstoken){
         redirectToLogin();
@@ -350,31 +365,51 @@ export const updateUserProfileImage = async (formData) => {
     return response;
 };
 
+// export const validateToken = async () => {
+//     const accessToken = getAccessToken();
+//     const refreshToken = getRefreshToken();
+
+//     if (!accessToken && refreshToken) {
+//         try {
+//             const refreshResponse = await auth.post("auth/jwt/refresh/", {
+//                 refresh: refreshToken,
+//             });
+//             setTokens(refreshResponse.data.access, refreshToken);
+//             return refreshResponse.data.access;
+//         } catch (error) {
+//             console.error("Token refresh failed:", error);
+//             removeTokens();
+//             redirectToLogin();
+//         }
+//     }
+
+//     if (!accessToken && !refreshToken) {
+//         removeTokens();
+//         redirectToLogin();
+//     }
+
+//     return accessToken;
+// };
 export const validateToken = async () => {
-    const accessToken = getAccessToken();
-    const refreshToken = sessionStorage.getItem("refreshToken");
-
+    const accessToken  = await getAccessToken();
+    const refreshToken = await getRefreshToken();
     if (!accessToken && refreshToken) {
-        try {
-            const refreshResponse = await auth.post("auth/jwt/refresh/", {
-                refresh: refreshToken,
-            });
-            setTokens(refreshResponse.data.access, refreshToken);
-            return refreshResponse.data.access;
-        } catch (error) {
-            console.error("Token refresh failed:", error);
-            removeTokens();
-            redirectToLogin();
-        }
-    }
-
-    if (!accessToken && !refreshToken) {
-        removeTokens();
+      try {
+        const { data } = await auth.post("auth/jwt/refresh/", { refresh: refreshToken });
+        await setTokens(data.access, refreshToken);
+        return data.access;
+      } catch {
+        await removeTokens();
         redirectToLogin();
+      }
     }
-
+    if (!accessToken && !refreshToken) {
+      await removeTokens();
+      redirectToLogin();
+    }
     return accessToken;
-};
+  };
+  
 
 // intercept request and modify headers
 auth.interceptors.request.use(
@@ -382,7 +417,7 @@ auth.interceptors.request.use(
         if (
             config.url.includes("auth/jwt/create/") ||
             config.url.includes("auth/users/") ||
-            config.url.includes("account/register/") 
+            config.url.includes("delivery/register/") 
         ) {
             return config; // Don't attach Authorization header for login, registration, etc.
         }
@@ -404,35 +439,30 @@ auth.interceptors.request.use(
 
 // response interceptors
 auth.interceptors.response.use(
-    (response) => response,
+    (r) => r,
     async (error) => {
-        const originalRequest = error.config;
-
-        if (error.response?.status === 401 && !originalRequest._retry) {
-            const refreshToken = await AsyncStorage.getItem("refreshToken");
-            if (refreshToken) {
-                try {
-                    originalRequest._retry = true; // Mark request as retried
-                    const refreshResponse = await auth.post("auth/jwt/refresh/", {
-                        refresh: refreshToken,
-                    });
-                    setTokens(refreshResponse.data.access, refreshToken);
-                    originalRequest.headers[
-                        "Authorization"
-                    ] = `Bearer ${refreshResponse.data.access}`;
-                    return auth.request(originalRequest);
-                } catch (refreshError) {
-                    console.error("Token refresh failed:", refreshError);
-                    redirectToLogin();
-                }
-            } else {
-                console.warn("No refresh token available; redirecting to login.");
-                redirectToLogin();
-            }
+      const originalRequest = error.config;
+      if (error.response?.status === 401 && !originalRequest._retry) {
+        const refreshToken = await getRefreshToken();
+        if (refreshToken) {
+          originalRequest._retry = true;
+          try {
+            const { data } = await auth.post("auth/jwt/refresh/", { refresh: refreshToken });
+            await setTokens(data.access, refreshToken);
+            originalRequest.headers["Authorization"] = `Bearer ${data.access}`;
+            return auth.request(originalRequest);
+          } catch {
+            await removeTokens();
+            redirectToLogin();
+          }
+        } else {
+          await removeTokens();
+          redirectToLogin();
         }
-        return Promise.reject(error);
+      }
+      return Promise.reject(error);
     }
-);
+  );
 
 pay.interceptors.request.use(
     async (config) => {
