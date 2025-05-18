@@ -9,6 +9,8 @@ import {
   Image,
   TextInput,
   TouchableOpacity,
+    Linking,
+  StyleSheet,
 } from "react-native";
 import CustomButton from "@/components/CustomButton";
 import { useColorScheme } from "@/hooks/useColorScheme.web";
@@ -58,7 +60,7 @@ const SignUp = () => {
     ) {
       Toast.show({
         type: "error",
-        text1: "Please fill all required fields",
+        text1: t('fill'),
       });
       return;
     }
@@ -81,7 +83,7 @@ const SignUp = () => {
       if (response) {
         Toast.show({
           type: "success",
-          text1: "Account created successfully!",
+          text1: t('account_created'),
         });
 
         // Reset form
@@ -102,11 +104,31 @@ const SignUp = () => {
       Toast.show({
         type: "error",
         text1: "Registration failed",
-        text2: error.response?.data?.message || "Please check your information",
+        text2: extractErrorDetails(error),
+        visibilityTime: 4000, 
       });
     } finally {
       setIsSubmitting(false);
     }
+  };
+   const extractErrorDetails = (error) => {
+    if (error?.response?.data) {
+      const data = error.response.data;
+
+      // If it's a simple error message
+      if (typeof data === "string") return data;
+
+      // If it's a dict of field-specific errors
+      const messages = Object.entries(data)
+        .map(
+          ([key, value]) =>
+            `${key}: ${Array.isArray(value) ? value.join(", ") : value}`
+        )
+        .join("\n");
+
+      return messages || "An unknown error occurred.";
+    }
+    return "An unknown error occurred.";
   };
 
   return (
@@ -130,7 +152,7 @@ const SignUp = () => {
           resizeMode="cover"
           style={{
             width: "100%",
-            height: 240,
+            height: 200,
           }}
         />
         <View className="absolute inset-0 bg-white/20" />
@@ -145,17 +167,18 @@ const SignUp = () => {
             backgroundColor: colorScheme === "dark" ? "#121212" : "#fff",
             borderTopLeftRadius: 32,
             borderTopRightRadius: 32,
-            marginTop: -28,
+            marginTop: -64,
           }}
         >
           <Text
-            // style={{
-            //   fontSize: 20,
-            //   fontWeight: "700",
-            //   // color: colorScheme === "dark" ? "#fff" : "#000",
-            //   marginBottom: 16,
-            //   fontFamily:"",
-            // }}
+            style={{
+              fontSize: 20,
+              fontWeight: "700",
+              // color: colorScheme === "dark" ? "#fff" : "#000",
+              marginBottom: 16,
+              color: "#445399",
+              fontFamily: "Poppins-Bold",
+            }}
             className="text-primary text-[20px] font-poppins-medium mb-4"
           >
             {t("title")}
@@ -319,7 +342,7 @@ const SignUp = () => {
             onChangeText={(text) => setForm({ ...form, password: text })}
           /> */}
 
-          <View style={{ marginBottom: 20, position: "relative" }}>
+          <View style={{ marginBottom: 10, position: "relative" }}>
             <TextInput
                style={{
                 flex: 1,
@@ -369,12 +392,12 @@ const SignUp = () => {
               fontSize: 12,
               color: colorScheme === "dark" ? "#888" : "#666",
               textAlign: "center",
-              marginBottom: 24,
+              marginBottom: 14,
               lineHeight: 16,
               paddingHorizontal: 24,
             }}
           >
-            {t('by')}{" "}
+            {t('by')} <Text style={{ color: "#445399" }}>{t("by2")}</Text>
             <Text
               // style={{
               //   color: "#7E0201",
@@ -387,30 +410,34 @@ const SignUp = () => {
             </Text>
           </Text>
 
-          {/* Sign Up Button */}
-          <CustomButton
-            title={t("signup")}
-            containerStyles={{
-              backgroundColor: "#7E0201",
-              borderRadius: 12,
-              height: 48,
-              justifyContent: "center",
-            }}
-            textStyles={{
-              color: "#fff",
-              fontSize: 16,
-              fontWeight: "600",
-            }}
-            isLoading={isSubmitting}
-            handlePress={handleSignUp}
-          />
+          <View
+            style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+          >
+            {/* Sign Up Button */}
+            <CustomButton
+              title={t("signup")}
+              containerStyles={{
+                backgroundColor: "#7E0201",
+                borderRadius: 12,
+                height: 48,
+                justifyContent: "center",
+              }}
+              textStyles={{
+                color: "#fff",
+                fontSize: 16,
+                fontWeight: "600",
+              }}
+              isLoading={isSubmitting}
+              handlePress={handleSignUp}
+            />
+          </View>
 
           {/* Login Link */}
           <View
             style={{
               flexDirection: "row",
               justifyContent: "center",
-              marginTop: 24,
+              marginTop: 8,
             }}
           >
             <Text
@@ -424,11 +451,11 @@ const SignUp = () => {
             </Text>
             <TouchableOpacity onPress={() => router.push("/sign-in")}>
               <Text
-                // style={{
-                //   fontSize: 14,
-                //   color: "#7E0201",
-                //   fontWeight: "600",
-                // }}
+                style={{
+                  fontSize: 14,
+                  color: "#445399",
+                  fontWeight: "600",
+                }}
                 className="text-primary font-poppins-medium text-[14px]"
               >
                 {t('login')}
@@ -436,9 +463,39 @@ const SignUp = () => {
             </TouchableOpacity>
           </View>
         </View>
+         <View style={styles.poweredBy}>
+          <Text style={styles.poweredText}>Powered by </Text>
+          <Text
+            style={styles.poweredBold}
+            onPress={() => Linking.openURL("https://activetechet.com")}
+          >
+            Active Technology PLC
+          </Text>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
 };
+
+// Responsive size calculation
+const responsiveSize = (size) => {
+  const scaleFactor = width / 375; // Base width from design (e.g., iPhone 375)
+  return size * scaleFactor;
+};
+const styles = StyleSheet.create({
+  poweredBy: {
+    alignItems: "center",
+    marginTop: responsiveSize(10),
+  },
+  poweredText: {
+    textAlign: "center",
+    fontSize: responsiveSize(12),
+    color: "#1f2937",
+  },
+  poweredBold: {
+    fontWeight: "bold",
+    color: "#8F3C01",
+  },
+});
 
 export default SignUp;

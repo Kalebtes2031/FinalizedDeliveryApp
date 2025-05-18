@@ -3,5 +3,7 @@
   "shop": "Shop",
   "cart": "Cart",
   "myorders": "My Orders",
-  "track": "Track Order"
+  "track": "Track Order",
+  "accepted":"Accepted",
+  "assigned":"Accepted"
 }

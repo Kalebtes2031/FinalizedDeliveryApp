@@ -110,18 +110,25 @@ const OrderTotal = () => {
       {orders.length === 0 ? (
         <View>
           <View style={styles.headerContainer}>
-            <Header />
+            {/* <Header /> */}
             <View
               style={{
                 flexDirection: "row",
                 justifyContent: "space-between",
                 alignItems: "start",
-                paddingHorizontal: 12,
+                // paddingHorizontal: 12,
               }}
             >
               <TouchableOpacity
                 onPress={() => router.back()}
-                style={{ marginHorizontal: 10, paddingHorizontal: 2 }}
+                style={{
+                  marginHorizontal: 10,
+                  paddingHorizontal: 2,
+                  borderWidth: 1,
+                  borderRadius: 52,
+                  paddingVertical: 2,
+                  borderColor: "#445399",
+                }}
                 className="border w-10 h-10 flex flex-row justify-center items-center py-1 rounded-full border-gray-300"
               >
                 <Ionicons name="arrow-back" size={24} color="#445399" />
@@ -130,7 +137,7 @@ const OrderTotal = () => {
                 className="font-poppins-bold text-center text-primary mb-4"
                 style={styles.headerTitle}
               >
-                {t('order')}
+                {t("history")}
               </Text>
               <View></View>
             </View>
@@ -172,7 +179,7 @@ const OrderTotal = () => {
                 marginTop: 15,
               }}
             >
-              {t('thereisno')}
+              {t("thereisno")}
             </Text>
           </View>
         </View>
@@ -181,18 +188,26 @@ const OrderTotal = () => {
           <ScrollView contentContainerStyle={styles.scrollContainer}>
             {/* <Header /> */}
             <View style={styles.headerContainer}>
-              <Header />
+              {/* <Header /> */}
               <View
                 style={{
                   flexDirection: "row",
                   justifyContent: "space-between",
                   alignItems: "start",
-                  paddingHorizontal: 12,
+                  // paddingHorizontal: 10,
+                  paddingTop: 4,
                 }}
               >
                 <TouchableOpacity
                   onPress={() => router.back()}
-                  style={{ marginHorizontal: 10, paddingHorizontal: 2 }}
+                  style={{
+                    marginHorizontal: 10,
+                    paddingHorizontal: 2,
+                    borderWidth: 1,
+                    borderRadius: 52,
+                    paddingVertical: 2,
+                    borderColor: "#445399",
+                  }}
                   className="border w-10 h-10 flex flex-row justify-center items-center py-1 rounded-full border-gray-300"
                 >
                   <Ionicons name="arrow-back" size={24} color="#445399" />
@@ -201,7 +216,7 @@ const OrderTotal = () => {
                   className="font-poppins-bold text-center text-primary mb-4"
                   style={styles.headerTitle}
                 >
-                  {t('history')}
+                  {t("history")}
                 </Text>
                 <View></View>
               </View>
@@ -213,75 +228,147 @@ const OrderTotal = () => {
                   <View
                     style={{
                       flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
+                      justifyContent: "start",
+                      alignItems: "start",
                     }}
                   >
                     {/* Order Header */}
                     <Text style={styles.orderNumber}>
-                      {t('number')} Yas-{order.id}
+                      {t("num")} #Yas-{order.id}
                     </Text>
+
+                    {order.items.map((item) => (
+                      <View
+                        key={item.id}
+                        style={{
+                          marginLeft: 3,
+                          flexDirection: "row",
+                          justifyContent: "start",
+                          alignItems: "start",
+                          marginBottom: 12,
+                          borderBottomColor: "#F1F5F9",
+                          borderBottomWidth: 1,
+                          paddingBottom: 4,
+                          // gap:6
+                        }}
+                      >
+                        <View>
+                          <Image
+                            source={{
+                              uri:
+                                item.variant.product?.image ||
+                                "https://via.placeholder.com/60",
+                            }}
+                            style={{
+                              width: 60,
+                              height: 60,
+                              borderRadius: 8,
+                              marginRight: 12,
+                            }}
+                          />
+                          <Text>
+                            {t("price")} / {t(`${item.variant?.unit}`)}{" "}
+                          </Text>
+                        </View>
+                        <View
+                          style={{
+                            flex: 1,
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            paddingRight: 22,
+                          }}
+                        >
+                          <View style={styles.productInfo}>
+                            <Text style={styles.productName}>
+                              {i18n.language === "en"
+                                ? item.variant.product.item_name
+                                : item.variant.product.item_name_amh}
+                            </Text>
+
+                            <Text
+                              style={{
+                                fontSize: 12,
+                                color: "#94A3B8",
+                                marginTop: 4,
+                              }}
+                            >
+                              {item.quantity} x{" "}
+                              {i18n.language === "en" ? t("br") : ""}
+                              {item.total_price}{" "}
+                              {i18n.language === "amh" ? t("br") : ""}
+                            </Text>
+                          </View>
+                          <View>
+                            <Text style={styles.productName}>
+                              {t("subtotal")}
+                            </Text>
+
+                            <Text
+                              style={{
+                                fontSize: 12,
+                                color: "#",
+                                marginTop: 4,
+                                fontWeight:600
+                              }}
+                            >
+                              {i18n.language === "en" ? t("br") : ""}
+                              {item.total_price}{" "}
+                              {i18n.language === "amh" ? t("br") : ""}
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+                    ))}
+
+                    {/* Total Items */}
                     <View
                       style={{
                         flexDirection: "row",
+                        gap: 4,
                         justifyContent: "space-between",
-                        alignItems: "center",
-                        gap: 46,
+                        paddingBottom: 8,
+                        marginBottom: 4,
+                        borderBottomWidth: 1,
+                        borderBottomColor: "#445399",
+                        // backgroundColor:"red"
                       }}
                     >
-                      <View>
-                        {/* Scheduled Time */}
-                        <Text style={styles.orderInfo}>
-                          {t('scheduled')}:{" "}
-                          {format(
-                            new Date(order.scheduled_delivery),
-                            "MMM dd, yyyy"
-                          )}
-                        </Text>
-                        {/* Scheduled Time */}
-                        <Text style={styles.orderInfo}>
-                          {t('orderstatus')}: {order.status}
-                        </Text>
-                        <Text style={styles.orderInfo}>
-                          {t('paymentstatus')}: {order.payment_status}
-                        </Text>
-                      </View>
-                      <View style={{ marginBottom: 12 }}>
-                        {/* Total Items */}
-                        <Text
-                          className="underline text-gray-500"
-                          style={{ fontSize: 18, marginBottom: 1 }}
-                        >
-                          {t('items')}:
-                        </Text>
-                        {order.items.map((item) => (
-                          <View key={item.id} style={{ marginLeft: 13 }}>
-                            <Text>
-                              {i18n.language === "en"
-                                ? item.variant.product?.item_name
-                                : item.variant.product?.item_name_amh}{" "}
-                              {parseInt(item.variant?.quantity)}
-                              {item.variant?.unit}
-                            </Text>
-                          </View>
-                        ))}
-                      </View>
-                    </View>
-
-                    {/* Action Buttons */}
-                    <View style={styles.actionButtons}>
-                      <Text
-                        className="text-end"
-                        style={{ 
-                          textAlign: "right", 
-                           padding:2,
-                           fontSize:16,
-                           fontWeight:700
-                        }}
-                      >
-                        {t('total')} {order.total} {t('br')}
+                      <Text style={{ fontSize: 14, fontWeight: 600 }}>
+                        {t("totalamount")}:
+                      </Text>
+                      <Text style={{ fontSize: 14, fontWeight: "bold" }}>
+                        {i18n.language === "en" ? t("br") : ""}
+                        {order.total}
+                        {i18n.language === "amh" ? t("br") : ""}
                       </Text>
                     </View>
+
+                    {/* Scheduled Time */}
+                    <View style={styles.infoRow}>
+                      <Text style={styles.label}>{t("scheduled")}:</Text>
+                      <Text style={styles.value}>
+                        {new Date(order.scheduled_delivery).toLocaleString()}
+                      </Text>
+                    </View>
+
+                    <View style={styles.infoRow}>
+                      <Text style={styles.label}>{t("orderstatus")}:</Text>
+                      <Text style={styles.value}>{t(`${order.status}`)}</Text>
+                    </View>
+
+                    <View style={styles.infoRow}>
+                      <Text style={styles.label}>{t("paymentstatus")}:</Text>
+                      <Text style={styles.value}>
+                        {t(`${order.payment_status}`)}
+                      </Text>
+                    </View>
+                    {/* <Text style={styles.orderInfo}>
+                      {t("orderstatus")}: {t(`${order.status}`)}
+                    </Text> */}
+                    {/* <Text style={styles.orderInfo}>
+                      {t("paymentstatus")}: {t(`${order.payment_status}`)}
+                    </Text> */}
                   </View>
                 </View>
               ))}
@@ -294,9 +381,31 @@ const OrderTotal = () => {
     </SafeAreaView>
   );
 };
+//
 
 // Add these new styles to your StyleSheet
 const styles = StyleSheet.create({
+  infoRow: {
+    flexDirection: "row",
+    // gap: 4,
+    marginTop: 6,
+    flexWrap: 'wrap', // Allow wrapping on small screens
+  },
+  label: {
+    fontSize: 14,
+    color: "#445399",
+    fontWeight: "600",
+    minWidth: 80, // Minimum width for label column
+    flexShrink: 0, // Prevent label from shrinking
+  },
+  value: {
+    fontSize: 14,
+    flex: 1, // Take remaining space
+    flexShrink: 1, // Allow text wrapping
+    // Optional: Add if you need text truncation instead of wrapping
+    // numberOfLines: 1,
+    // ellipsizeMode: 'tail'
+  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
@@ -323,7 +432,7 @@ const styles = StyleSheet.create({
     // borderBottomColor: "#eee",
   },
   orderCard: {
-    backgroundColor: "#D6F3D5",
+    backgroundColor: "rgba(150, 166, 234, 0.4)",
     padding: 16,
     marginVertical: 8,
     marginHorizontal: 12,
@@ -339,11 +448,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 4,
+    color: "#445399",
+    textAlign: "center",
+    borderBottomColor: "#445399",
+    borderBottomWidth: 1,
+    paddingBottom: 4,
+    marginBottom: 8,
   },
 
   orderInfo: {
     fontSize: 14,
-    marginBottom: 4,
+    // marginBottom: 4,
     color: "#333",
   },
 
@@ -352,7 +467,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
     alignItems: "flex-end",
     marginTop: 12,
-    width:"100%",
+    width: "100%",
     gap: 10,
   },
 
@@ -422,10 +537,12 @@ const styles = StyleSheet.create({
   headerTitle: {
     fontSize: 18,
     fontWeight: "bold",
+    marginRight: 16,
+    color: "#445399",
   },
   // ... keep the rest of your existing styles
   scrollContainers: {
-    padding: 16,
+    padding: 6,
   },
   itemContainer: {
     flexDirection: "row",

@@ -104,7 +104,7 @@ export default function AvailabilityToggle() {
           <Text style={styles.statusText}>
             {isAvailable 
             ?i18n.language=="en" ? "Online" : "በመስመር ላይ"
-            : i18n.language=="en" ? "Unavailable" : "አይገኙም"
+            : i18n.language=="en" ? "Unavailable" : "ከመስመር ውጪ"
             }
            
           </Text>
@@ -142,7 +142,8 @@ export default function AvailabilityToggle() {
 const styles = StyleSheet.create({
   container: {
     alignItems: "center",
-    padding: 16,
+    paddingHorizontal: 5,
+    paddingVertical: 5,
   },
   content: {
     flexDirection: "row",
@@ -151,14 +152,14 @@ const styles = StyleSheet.create({
   },
   track: {
     width: 50,
-    height: 28,
+    height: 22,
     borderRadius: 14,
     padding: 2,
     justifyContent: "center",
   },
   knob: {
-    width: 24,
-    height: 24,
+    width: 23,
+    height: 20,
     borderRadius: 12,
     justifyContent: "center",
     alignItems: "center",

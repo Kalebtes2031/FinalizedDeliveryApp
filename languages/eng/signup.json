@@ -13,5 +13,7 @@
   "privacy_policy": "I have read the Privacy Policy",
   "signup": "Sign Up",
   "already":"Already have an account?",
-    "login":"Login"
+    "login":"Login",
+  "fill":"Please fill all required fields",
+  "account_created":"Account created successfully!"
 }

@@ -3,19 +3,19 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export const setTokens = async (accessToken, refreshToken) => {
   await AsyncStorage.multiSet([
-    ["accessToken", accessToken],
-    ["refreshToken", refreshToken],
+    ["access", accessToken],
+    ["refresh", refreshToken],
   ]);
 };
 
 export const getAccessToken = async () => {
-  return AsyncStorage.getItem("accessToken");
+  return AsyncStorage.getItem("access");
 };
 
 export const getRefreshToken = async () => {
-  return AsyncStorage.getItem("refreshToken");
+  return AsyncStorage.getItem("refresh");
 };
 
 export const removeTokens = async () => {
-  await AsyncStorage.multiRemove(["accessToken", "refreshToken"]);
+  await AsyncStorage.multiRemove(["access", "refresh"]);
 };

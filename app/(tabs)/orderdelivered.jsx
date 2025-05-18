@@ -10,7 +10,7 @@ import {
   Modal,
   RefreshControl,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useGlobalContext } from "@/context/GlobalProvider";
 import { Link } from "expo-router";
 import { useColorScheme } from "@/hooks/useColorScheme.web";
@@ -25,8 +25,7 @@ import { Ionicons } from "@expo/vector-icons";
 import SearchProducts from "@/components/SearchComponent";
 import AnimatedCountdown from "@/components/AnimatedCountdown";
 import Icon from "react-native-vector-icons/MaterialIcons";
-
-
+import { useFocusEffect } from "@react-navigation/native";
 
 const COLORS = {
   primary: "#2D4150",
@@ -121,7 +120,6 @@ const Order = () => {
     );
   };
 
-
   const fetchAcceptedOrderss = async () => {
     try {
       const result = await fetchDeliveredOrders();
@@ -138,9 +136,11 @@ const Order = () => {
     }
   };
 
-  useEffect(() => {
-    if (isLogged) fetchAcceptedOrderss();
-  }, [isLogged]);
+  useFocusEffect(
+    useCallback(() => {
+      if (isLogged) fetchAcceptedOrderss();
+    }, [isLogged])
+  );
 
   const renderOrderItems = (items) =>
     items.map((item) => (
@@ -154,7 +154,7 @@ const Order = () => {
             style={styles.productImage}
           />
           <Text>
-            {t("price")} / {item.variant?.unit}{" "}
+            {t("price")} / {t(`${item.variant?.unit}`)}{" "}
           </Text>
         </View>
         <View style={styles.itemDetails}>
@@ -163,18 +163,20 @@ const Order = () => {
               ? item.variant.product?.item_name
               : item.variant.product?.item_name_amh}{" "}
             {parseInt(item.variant?.quantity)}
-            {item.variant?.unit}
+            {t(`${item.variant?.unit}`)}
           </Text>
           <View style={styles.priceRow}>
             <Text style={styles.itemPrice}>
-              {t("br")}
+              {i18n.language === "en" ? t("br") : ""}
               {item.variant?.price}
+              {i18n.language === "amh" ? t("br") : ""}
             </Text>
             <Text style={styles.itemQuantity}>x {item.quantity}</Text>
           </View>
           <Text style={styles.itemTotal}>
-            {t("total")}: {t("br")}
+            = {i18n.language === "en" ? t("br") : ""}
             {item.total_price}
+            {i18n.language === "amh" ? t("br") : ""}
           </Text>
         </View>
       </View>
@@ -182,20 +184,20 @@ const Order = () => {
 
   const renderOrderPaymentStatus = (status) => {
     let statusStyle = {};
-    let statusText = '';
-    
-    switch (status.toLowerCase()) {
+    let statusText = "";
+
+    switch (status) {
       case "Fully Paid":
         statusStyle = styles.statusCompleted;
-        statusText="Fully Paid"
+        statusText = "Fully Paid";
         break;
-      case "pending":
-        statusStyle = [styles.statusPending]
-        statusText ="Pending"
+      case "Pending":
+        statusStyle = [styles.statusPending];
+        statusText = "Pending";
         break;
       case "On Delivery":
-        statusStyle = [styles.statusPending]
-        statusText ="Cash on Delivery"
+        statusStyle = [styles.statusPending];
+        statusText = "Cash on Delivery";
         break;
       case "cancelled":
         statusStyle = styles.statusCancelled;
@@ -205,14 +207,14 @@ const Order = () => {
     }
     return (
       <View style={[styles.statusBadge, statusStyle]}>
-        <Text style={styles.statusText}>{statusText}</Text>
+        <Text style={styles.statusText}>{t(`${statusText}`)}</Text>
       </View>
     );
   };
   const renderOrderStatus = (status) => {
     let statusStyle = {};
-    let statusText = '';
-    
+    let statusText = "";
+
     switch (status.toLowerCase()) {
       case "Accepted":
         statusStyle = styles.statusCompleted;
@@ -221,10 +223,10 @@ const Order = () => {
         statusStyle = styles.statusCompleted;
         break;
       case "Pending":
-        statusStyle = [styles.statusPending]
+        statusStyle = [styles.statusPending];
         break;
       case "Assigned":
-        statusStyle = [styles.statusPending]
+        statusStyle = [styles.statusPending];
         break;
       case "Ignored":
         statusStyle = styles.statusCancelled;
@@ -252,32 +254,48 @@ const Order = () => {
 
     return orders.map((order) => (
       <View key={order.id} style={styles.orderContainer}>
-        <View style={{ flexDirection: "row", justifyContent: "center" }}>
-          {/* <AnimatedCountdown
+        <View style={styles.orderHeader}>
+          <Text style={styles.orderId}>
+            {t("order")} #Yas-{order.id}
+          </Text>
+          <View style={{ flexDirection: "row" }}>
+            {/* <AnimatedCountdown
             scheduledTime={order.scheduled_delivery}
             warningColor={COLORS.warning}
             successColor={COLORS.success}
           /> */}
-          <Text style={styles.metaText}>
-            Order Date:{" "}
-            {format(new Date(order.created_at), "MMM dd, yyyy HH:mm")}
-          </Text>
+            <Text style={styles.metaText}>
+              {t("orderdate")}:{" "}
+              {format(new Date(order.created_at), "MMM dd, yyyy HH:mm")}
+            </Text>
+          </View>
         </View>
-        <View style={styles.orderHeader}>
-          <Text style={styles.orderId}>
-            {t("order")} Number Yas-{order.id}
-          </Text>
-         
-        </View>
-            <Text>Order Status:  {order.status}</Text>
-            <Text>Payment Status:  {renderOrderPaymentStatus(order.payment_status)}</Text>
-       
+        <Text style={{ color: "#666", fontWeight: "600" }}>
+          {t("status")}: {t(`${order.status}`)}
+        </Text>
+        {order.payment_status && (
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "start",
+              alignItems: "start",
+              width: "100%",
+            }}
+          >
+            <Text style={{ color: "#666", fontWeight: "600", width: "24%" }}>
+              {t("payments")} :
+            </Text>
+            <Text style={{ marginHorizontal: 4, width: "100%" }}>
+              {renderOrderPaymentStatus(order.payment_status)}
+            </Text>
+          </View>
+        )}
 
         <Text style={styles.sectionHeader}>{t("items")}</Text>
         {renderOrderItems(order.items)}
         <View style={styles.paymentStatusContainer}>
           <Text style={[styles.metaText, { marginRight: 5 }]}>
-            Customer Contact Details:
+            {t("customer")}:
           </Text>
         </View>
         <View
@@ -291,7 +309,9 @@ const Order = () => {
           <View>
             {order.user.image ? (
               <Image
-                source={{ uri: order.user.image }}
+                source={{
+                  uri: `https://yasonbackend.yasonsc.com${order.user.image}`,
+                }}
                 style={{
                   width: 60,
                   height: 60,
@@ -315,18 +335,29 @@ const Order = () => {
                 <Icon name="person" size={40} color="#666" />
               </View>
             )}
-           
           </View>
           <View>
-            <Text>{order.user.first_name} {order.user.last_name}</Text>
+            <Text>
+              {order.user.first_name} {order.user.last_name}
+            </Text>
             <Text>{order.user.phone_number}</Text>
           </View>
         </View>
         <View style={styles.totalContainer}>
-          <Text style={styles.orderTotal}>{t("ordertotal")}:</Text>
+          <Text
+            style={{
+              fontSize: 16,
+              fontWeight: "600",
+              color: "#445399",
+              width: "77%",
+            }}
+          >
+            {t("ordertotal")}:
+          </Text>
           <Text style={styles.orderTotal}>
-            {t("br")}
+            {i18n.language === "en" ? t("br") : ""}
             {order.total}
+            {i18n.language === "amh" ? t("br") : ""}
           </Text>
         </View>
       </View>
@@ -362,7 +393,7 @@ const Order = () => {
                 <Ionicons name="arrow-back" size={24} color="white" />
               </TouchableOpacity>
 
-              <Text style={styles.categoryTitle}>Delivered Orders</Text>
+              <Text style={styles.categoryTitle}>{t("delivereds")}</Text>
               <View></View>
             </View>
             <View
@@ -378,7 +409,7 @@ const Order = () => {
               />
             </View>
             <Text style={styles.categoryTitle2}>
-              {orders.length} Orders
+              {orders.length} {t("orders")}
             </Text>
           </View>
 
@@ -453,10 +484,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    height: 230,
+    height: 150,
     backgroundColor: "#445399",
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: 10,
   },
   searchContainer: {
     paddingHorizontal: 16,
@@ -486,7 +517,7 @@ const styles = StyleSheet.create({
   },
   categoryTitle2: {
     position: "absolute",
-    top: 180,
+    top: 120,
     left: 20,
     color: "#fff",
     fontSize: 16,
@@ -494,7 +525,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 16,
-    paddingVertical: 40,
+    // paddingBottom: 40,
   },
   loginPromptContainer: {
     flex: 1,
@@ -525,8 +556,10 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(150, 166, 234, 0.4)",
     borderRadius: 12,
     marginBottom: 16,
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingTop: 2,
     borderWidth: 1,
+    borderColor: "#445399",
     // shadowColor: "#000",
     // shadowOpacity: 0.05,
     // shadowRadius: 6,
@@ -534,15 +567,17 @@ const styles = StyleSheet.create({
     // elevation: 2,
   },
   orderHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginVertical: 22,
+    flexDirection: "column",
+    // justifyContent: "center",
+    // alignItems: "center",
+    marginVertical: 2,
   },
   orderId: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1A1A1A",
+    color: "#445399",
+    textAlign: "center",
+    marginBottom: 4,
   },
   orderMeta: {
     marginBottom: 16,
@@ -551,28 +586,32 @@ const styles = StyleSheet.create({
   metaText: {
     fontSize: 13,
     color: "#666",
+    fontWeight: "600",
   },
   statusBadge: {
-    paddingVertical: 4,
-    paddingHorizontal: 10,
-    borderRadius: 50,
+    paddingVertical: 3,
+    // paddingHorizontal: 10,
+    borderRadius: 60,
+
+    // marginTop:6
   },
   statusText: {
-    fontSize: 10,
-    fontWeight: "400",
-    textTransform: "uppercase",
+    fontSize: 13,
+    fontWeight: "600",
+    color: "#666",
+    // textTransform: "uppercase",
   },
   statusCompleted: {
-    backgroundColor: "rgba(63, 176, 39, 0.8)",
+    backgroundColor: "",
   },
   statusPending: {
-    backgroundColor: "#FFF3E0",
+    backgroundColor: "",
   },
   statusCancelled: {
-    backgroundColor: "#FFEBEE",
+    backgroundColor: "",
   },
   statusDefault: {
-    backgroundColor: "#F5F5F5",
+    backgroundColor: "",
   },
   sectionHeader: {
     fontSize: 12,
@@ -583,8 +622,8 @@ const styles = StyleSheet.create({
   },
   itemContainer: {
     flexDirection: "row",
-    marginBottom: 16,
-    paddingBottom: 16,
+    marginBottom: 6,
+    paddingBottom: 6,
     borderBottomWidth: 1,
     borderBottomColor: "#EEE",
   },
@@ -601,7 +640,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: "500",
     color: "#333",
-    marginBottom: 4,
+    // marginBottom: 4,
   },
   priceRow: {
     flexDirection: "row",
@@ -625,15 +664,17 @@ const styles = StyleSheet.create({
   totalContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 16,
-    paddingTop: 16,
+    marginTop: 6,
+    paddingVertical: 6,
     borderTopWidth: 1,
     borderTopColor: "#EEE",
+    width: "100%",
   },
   orderTotal: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#1A1A1A",
+    color: "#445399",
+    width: "100%",
   },
   noOrdersText: {
     textAlign: "center",

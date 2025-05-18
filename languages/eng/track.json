@@ -6,11 +6,13 @@
     "await":"Awaiting driver assignment",
     "br":"Br",
     "totalamount":"Total Amount",
+    
     "subtotal":"Subtotal",
     "summary":"Order Summary",
     "delivered":"Delivered",
     "prepared":"Prepared",
     "confirmed":"Confirmed",
     "nocompletedelivery":"There is no Completed Delivery",
-    "noactivedelivery":"There is no Active Delivery"
+    "noactivedelivery":"There is no Active Delivery",
+    "order":"Order"
 }

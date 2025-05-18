@@ -17,7 +17,7 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { StyleSheet, TouchableOpacity } from "react-native";
 
 import { Ionicons } from "@expo/vector-icons";
-import Toast from "react-native-toast-message"; // Import Toast component
+import Toast, { BaseToast, ErrorToast } from 'react-native-toast-message';
 import Header from "@/components/Header"; // Import the Header component
 import SearchComp from "@/components/SearchComp";
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -28,27 +28,57 @@ import { LanguageProvider } from "@/context/LanguageProvider";
 import { View } from "react-native";
 import { Text } from "react-native";
 import { FA5Style } from "@expo/vector-icons/build/FontAwesome5";
+import NetInfo from "@react-native-community/netinfo";
+import { useTranslation } from "react-i18next";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const { t } = useTranslation("first");
   const colorScheme = useColorScheme();
-  const [fontsLoaded, error] = useFonts({
+
+  // 1) load fonts
+  const [fontsLoaded, fontError] = useFonts({
     "Poppins-Regular": require("../assets/fonts/Poppins-Regular.ttf"),
-    "Poppins-Medium": require("../assets/fonts/Poppins-Medium.ttf"),
-    "Poppins-bold": require("../assets/fonts/Poppins-Bold.ttf"), // Note the lowercase
-    "League Spartan": require("../assets/fonts/LeagueSpartan-Regular.ttf"),
+    "Poppins-Medium":  require("../assets/fonts/Poppins-Medium.ttf"),
+    "Poppins-Bold":    require("../assets/fonts/Poppins-Bold.ttf"),
+    "League Spartan":  require("../assets/fonts/LeagueSpartan-Regular.ttf"),
   });
 
+  // 2) hide splash when fonts ready
   useEffect(() => {
-    if (error) console.error("Font loading error:", error);
+    if (fontError) console.error(fontError);
     if (fontsLoaded) SplashScreen.hideAsync();
-  }, [fontsLoaded, error]);
+  }, [fontsLoaded, fontError]);
 
-  if (!fontsLoaded) {
-    return null; // Show loading screen/image here
-  }
+  // 3) internet toasts
+  useEffect(() => {
+    NetInfo.fetch().then(state => {
+      if (!state.isConnected) {
+        Toast.show({ type:"error", text1:t("no_internet"), text2:t("check_connection"), position:"top", autoHide:false });
+      }
+    });
+    const unsub = NetInfo.addEventListener(state => {
+      if (!state.isConnected) {
+        Toast.show({ type:"error", text1:t("no_internet"), text2:t("check_connection"), position:"top", autoHide:false });
+      } else {
+        Toast.hide();
+        Toast.show({ type:"success", text1:t("back_online"), position:"top", visibilityTime:2000 });
+      }
+    });
+    return () => unsub();
+  }, [t]);
 
+  const toastConfig = {
+    error: props => (
+      <ErrorToast
+        {...props}
+        text1Style={{ fontSize:16, fontWeight:"bold", color:"red" }}
+        text2Style={{ fontSize:15, color:"#333" }}
+        style={{ borderLeftColor:"red", padding:12, borderRadius:8 }}
+      />
+    )
+  };
   return (
     <SafeAreaProvider>
       <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
@@ -60,7 +90,12 @@ export default function RootLayout() {
         >
           {/* <Header /> */}
 
-          <ErrorBoundary>
+          {!fontsLoaded ? (
+            <View style={{ flex:1, justifyContent:"center", alignItems:"center" }}>
+              <Text>{t("loading_fonts")/* you can add this key to your translations */}</Text>
+            </View>
+          ) : (
+            <ErrorBoundary>
               <GlobalProvider>
                 <CartProvider>
                   <WatchlistProvider>
@@ -132,12 +167,13 @@ export default function RootLayout() {
 
                       <Stack.Screen name="+not-found" />
                     </Stack>
-                    <Toast />
+                   <Toast config={toastConfig} />
                     </LanguageProvider>
                   </WatchlistProvider>
                 </CartProvider>
               </GlobalProvider>
           </ErrorBoundary>
+          )}
           <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
         </SafeAreaView>
       </ThemeProvider>

@@ -10,7 +10,7 @@ import {
   Modal,
   RefreshControl,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useGlobalContext } from "@/context/GlobalProvider";
 import { Link } from "expo-router";
 import { useColorScheme } from "@/hooks/useColorScheme.web";
@@ -21,6 +21,7 @@ import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { RadioButton } from "react-native-paper";
 import { useTranslation } from "react-i18next";
+import { useFocusEffect } from "@react-navigation/native";
 
 const Order = () => {
   const { t, i18n } = useTranslation("order");
@@ -95,9 +96,11 @@ const Order = () => {
     }
   };
 
-  useEffect(() => {
-    if (isLogged) fetchAcceptedOrderss();
-  }, [isLogged]);
+  useFocusEffect(
+    useCallback(() => {
+      if (isLogged) fetchAcceptedOrderss();
+    }, [isLogged])
+  );
 
   const renderOrderItems = (items) =>
     items.map((item) => (

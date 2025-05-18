@@ -1,7 +1,7 @@
 import Card from "@/components/Card";
 import Header from "@/components/Header";
 import SearchComp from "@/components/SearchComp";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   ScrollView,
   View,
@@ -40,9 +40,15 @@ import { Ionicons } from "@expo/vector-icons";
 import AvailabilityToggle from "@/components/AvailabilityToggle";
 import LocationTracker from "@/LocationTracker";
 import { useTranslation } from "react-i18next";
+import { useFocusEffect } from "@react-navigation/native";
 
-// Get device width for the scroll item (or use DEVICE_WIDTH for full-screen width)
-const { width: DEVICE_WIDTH } = Dimensions.get("window");
+const { width, height } = Dimensions.get("window");
+
+// Responsive scaling functions
+const scaleWidth = (size) => (width / 375) * size; // 375 is standard mobile width
+const scaleHeight = (size) => (height / 812) * size; // 812 is standard mobile height
+const scaleFont = (size) => Math.round((size * width) / 375);
+
 const ITEM_WIDTH = 335; // Adjust as needed
 
 export default function HomeScreen() {
@@ -124,15 +130,17 @@ export default function HomeScreen() {
     }
   };
 
-  useEffect(() => {
-    // newestImages();
-    // newPopular();
-    fetchAssignedDeliveryOrders();
-    fetchAcceptedOrderss();
-    fetchOrdersHistoryTotals();
-    fetchDeliveredOrdersHistory();
-    console.log("am i logged in: ", isLogged);
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      // newestImages();
+      // newPopular();
+      fetchAssignedDeliveryOrders();
+      fetchAcceptedOrderss();
+      fetchOrdersHistoryTotals();
+      fetchDeliveredOrdersHistory();
+      console.log("am i logged in: ", isLogged);
+    }, [])
+  );
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -219,188 +227,57 @@ export default function HomeScreen() {
     >
       <Header />
       {/* greeting */}
-      <View
-        style={{
-          diplay: "flex",
-          flexDirection: "row",
-          justifyContent: "start",
-          alignItems: "center",
-          marginLeft: 18,
-          gap: 6,
-        }}
-      >
-        <Text className="text-lg  font-poppins-medium text-primary ">
-          {greeting}
-        </Text>
-        <Text className="italic ml-2 text-primary">
+      <View style={styles.greetingContainer}>
+        <Text style={styles.greetingText}>{greeting}</Text>
+        <Text style={styles.userName}>
           {user?.first_name} {user?.last_name}
         </Text>
-       
       </View>
 
-      <View className="pb-12">
-        <View className="flex flex-row justify-between pr-12 items-center">
-          <Text
-            style={{
-              color: colorScheme === "dark" ? "white" : "#445399",
-              padding: 16,
-              fontSize: 20,
-              fontWeight: "bold",
-              textAlign: "start",
-            }}
-          >
-            {t("orders")}
-          </Text>
+      <View style={styles.ordersContainer}>
+        <View style={styles.ordersHeader}>
+          <Text style={styles.ordersHeaderText}>{t("orders")}</Text>
         </View>
         {/* two cards */}
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-between",
-            paddingHorizontal: 12,
-            paddingTop: 15,
-            gap: 12,
-          }}
-        >
-          <TouchableOpacity onPress={() => route.push("/(tabs)/orderrequest")}>
-            <View
-              style={{
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "#445399",
-                width: 160,
-                height: 200,
-                borderRadius: 22,
-              }}
-            >
-              <Text style={{ color: "white", fontSize: 22 }}>
-                {" "}
-                {orders.length}
-              </Text>
-              <Text
-                style={{
-                  color: "white",
-                  fontSize: 18,
-                  paddingHorizontal: 8,
-                  textAlign: "center",
-                }}
-              >
-                {" "}
-                {t("assigned")}
-              </Text>
+        <View style={styles.cardRow}>
+          <TouchableOpacity
+            onPress={() => route.push("/(tabs)/orderrequest")}
+            style={styles.cardTouchable}
+          >
+            <View style={[styles.card, styles.assignedCard]}>
+              <Text style={styles.cardNumber}>{orders.length}</Text>
+              <Text style={styles.cardText}>{t("assigned")}</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={() => route.push("/(tabs)/order")}>
-            <View
-              style={{
-                flexDirection: "column",
-                alignItems: "center",
-                justifyContent: "center",
-                backgroundColor: "#4CAF50",
-                width: 160,
-                height: 200,
-                borderRadius: 22,
-                // padding:2,
-              }}
-            >
-              <Text style={{ color: "white", fontSize: 22 }}>
-                {" "}
-                {acceptedOrders.length}
-              </Text>
-              <Text
-                style={{
-                  textAlign: "center",
-                  color: "white",
-                  fontSize: 18,
-                  paddingHorizontal: 8,
-                }}
-              >
-                {" "}
-                {t("accepted")}
-              </Text>
+
+          <TouchableOpacity
+            onPress={() => route.push("/(tabs)/order")}
+            style={styles.cardTouchable}
+          >
+            <View style={[styles.card, styles.acceptedCard]}>
+              <Text style={styles.cardNumber}>{acceptedOrders.length}</Text>
+              <Text style={styles.cardText}>{t("accepted")}</Text>
             </View>
           </TouchableOpacity>
         </View>
       </View>
-      <TouchableOpacity onPress={() => route.push("/(tabs)/orderinfo")}>
-        <View
-          style={{
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            marginBottom: 25,
-          }}
-        >
-          <View
-            style={{
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: "white",
-              width: "85%",
-              height: 200,
-              borderRadius: 22,
-              margin: 13,
-              shadowColor: "#000",
-              shadowOpacity: 0.05,
-              shadowRadius: 6,
-              shadowOffset: { width: 0, height: 2 },
-              elevation: 4,
-              // padding:2,
-            }}
-          >
-            <Text style={{ color: "#445399", fontSize: 22 }}>
-              {" "}
-              {totalOrders.length}
-            </Text>
-            <Text
-              style={{ textAlign: "center", color: "#445399", fontSize: 18 }}
-            >
-              {" "}
-              {t("total")}
-            </Text>
-          </View>
+      <TouchableOpacity
+        onPress={() => route.push("/(tabs)/orderinfo")}
+        style={[styles.fullWidthTouchable,{borderColor:"#445399",}]}
+      >
+        <View style={[styles.fullWidthCard, styles.totalCard]}>
+          <Text style={styles.fullWidthNumber}>{totalOrders.length}</Text>
+          <Text style={styles.fullWidthText}>{t("total")}</Text>
         </View>
       </TouchableOpacity>
-      <TouchableOpacity onPress={() => route.push("/(tabs)/orderdelivered")}>
-        <View
-          style={{
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            marginBottom: 25,
-          }}
-        >
-          <View
-            style={{
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              backgroundColor: "white",
-              width: "85%",
-              height: 200,
-              borderRadius: 22,
-              margin: 13,
-              shadowColor: "#000",
-              shadowOpacity: 0.05,
-              shadowRadius: 6,
-              shadowOffset: { width: 0, height: 2 },
-              elevation: 4,
-              // padding:2,
-            }}
-          >
-            <Text style={{ color: "#4CAF50", fontSize: 22 }}>
-              {" "}
-              {deliveredOrders.length}
-            </Text>
-            <Text
-              style={{ textAlign: "center", color: "#4CAF50", fontSize: 18 }}
-            >
-              {" "}
-              {t("delivered")}
-            </Text>
-          </View>
+
+      <TouchableOpacity
+        onPress={() => route.push("/(tabs)/orderdelivered")}
+        style={[styles.fullWidthTouchable,{borderColor:"#4CAF50",}]}
+      >
+        <View style={[styles.fullWidthCard, styles.deliveredCard]}>
+          <Text style={styles.fullWidthNumber}>{deliveredOrders.length}</Text>
+          <Text style={styles.fullWidthText}>{t("delivered")}</Text>
         </View>
       </TouchableOpacity>
 
@@ -440,6 +317,126 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "white",
+  },
+  greetingContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    alignItems: "center",
+    marginLeft: scaleWidth(20),
+    marginTop: scaleHeight(10),
+    marginBottom: scaleHeight(10),
+    gap: scaleWidth(6),
+  },
+  greetingText: {
+    fontSize: scaleFont(16),
+    fontFamily: "Poppins-Medium",
+    color: "#445399",
+  },
+  userName: {
+    fontSize: scaleFont(16),
+    fontStyle: "italic",
+    color: "#445399",
+    marginLeft: scaleWidth(8),
+  },
+  ordersContainer: {
+    paddingBottom: scaleHeight(12),
+  },
+  ordersHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: scaleWidth(16),
+    marginVertical: scaleHeight(10),
+    marginLeft:scaleWidth(4)
+  },
+  ordersHeaderText: {
+    color: "#445399",
+    fontSize: scaleFont(20),
+    fontWeight: "bold",
+    textAlign: "left",
+  },
+  cardRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: scaleWidth(17),
+    gap: scaleWidth(1),
+    alignItems:"center",
+    // backgroundColor:"gray"
+  },
+  cardTouchable: {
+    // aspectRatio: 0.9, // Maintain aspect ratio based on width
+  //  backgroundColor:"red"
+  },
+  card: {
+    
+    borderRadius: scaleWidth(22),
+    
+    padding: scaleWidth(8),
+    // Shadow properties
+    shadowColor: "#000",
+    shadowOpacity: 0.05,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 4,
+    
+  },
+  assignedCard: {
+    flexDirection:"column",
+    alignItems: "center",
+    justifyContent: "center",
+    width: width * 0.43,
+    backgroundColor: "#445399",
+  },
+  acceptedCard: {
+    flexDirection:"column",
+    alignItems: "center",
+    justifyContent: "center",
+    width: width * 0.43,
+    backgroundColor: "#4CAF50",
+  },
+  cardNumber: {
+    color: "white",
+    fontSize: scaleFont(22),
+    marginBottom: scaleHeight(8),
+  },
+  cardText: {
+    color: "white",
+    fontSize: scaleFont(18),
+    textAlign: "center",
+  },
+  fullWidthTouchable: {
+    width: "90%",
+    alignSelf: "center",
+    marginBottom: scaleHeight(15),
+    marginTop: scaleHeight(7),
+    borderWidth:1,
+    
+    borderRadius: scaleWidth(22),
+  },
+  fullWidthCard: {
+    width: "100%",
+    height: height * 0.20,
+    borderRadius: scaleWidth(22),
+    backgroundColor: "white",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  totalCard: {
+    // backgroundColor:"red",
+    backgroundColor: "white",
+  },
+  deliveredCard: {
+    backgroundColor: "white",
+  },
+  fullWidthNumber: {
+    fontSize: scaleFont(22),
+    marginBottom: scaleHeight(8),
+    color:"#445399"
+  },
+  fullWidthText: {
+    fontSize: scaleFont(18),
+    textAlign: "center",
+    color:"#445399"
   },
   imageContainer: {
     width: 96, // or 'w-24' converted to pixels, e.g., 96px

@@ -40,6 +40,7 @@ import { useTranslation } from "react-i18next";
 import LanguageToggle from "@/components/LanguageToggle";
 import AvailabilityToggle from "./AvailabilityToggle";
 
+
 const Header = () => {
   const { t, i18n } = useTranslation("header");
   const { watchlist } = useWatchlist();
@@ -265,10 +266,12 @@ const Header = () => {
                 <View
                   style={{ flexDirection: "row", gap: 6, alignItems: "center" }}
                 >
-                  <SimpleLineIcons name="logout" size={14} color="white" />
-                  <Text className=" font-poppins-medium text-white">
+                  <Text  style={{ color: "white" }} className=" font-poppins-medium text-white">
                     {t("signout")}
                   </Text>
+                  <Feather name="log-out" size={14} color="white" />
+                  {/* <SimpleLineIcons name="logout" size={14} color="white" /> */}
+                  
                 </View>
               </TouchableOpacity>
             </View>
@@ -304,13 +307,21 @@ const Header = () => {
                       </View>
                     )}
                   </TouchableOpacity>
-                  <View style={{ position: "absolute", bottom: 10, left: 38 }}>
+                  <View style={{ position: "absolute", bottom: 10, left: 33 }}>
                     <TouchableOpacity
                       style={styles.editButton}
                       onPress={handleImagePick}
                     >
-                      <Icon name="edit" size={15} color="#445399" />
-                      <Text style={styles.editButtonText}>Edit</Text>
+                      <Icon name="edit" 
+                       size={i18n.language === "en" ? 15 : 10}
+                        color="#445399" />
+                      <Text 
+                       style={{
+                          color: "#445399",
+                          fontWeight: "500",
+                          fontSize: i18n.language === "en"?10:9,
+                        }}
+                      > {t("edit")}</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -409,7 +420,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: 10,
+    // padding: 10,
     height: 70,
     width: "100%",
     // position: "absolute",

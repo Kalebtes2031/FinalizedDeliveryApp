@@ -11,5 +11,14 @@
   "num":"Order Number",
   "items":"Total Items",
   "scheduled":"Scheduled",
-  "accept":"Accept"
+  "accept":"Accept",
+  "price":"Price",
+  "L": "L",
+    "ml": "ml",
+    "kg": "Kg",
+    "g": "g",
+    "piece": "PCs",
+    "subtotal": "Subtotal",
+       "ordernu":"Order has been accepted Successfully "
+
 }

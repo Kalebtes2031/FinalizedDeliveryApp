@@ -15,6 +15,7 @@ import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { useTranslation } from "react-i18next";
 import { useCart } from "@/context/CartProvider";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import Fontisto from "@expo/vector-icons/Fontisto";
 
 export default function TabLayout() {
   const { cart } = useCart();
@@ -70,9 +71,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="orderrequest"
         options={{
-          title: "Assigned",
+          title: t("assigned"),
           tabBarIcon: ({ color }) => (
-            <AntDesign name="shoppingcart" size={32} color={color} />
+            <MaterialIcons name="assignment-turned-in" size={24} color={color} />
           ),
           // tabBarBadge: cart.total_items, // 🔥 This line shows the number
           // tabBarBadgeStyle: {
@@ -86,9 +87,9 @@ export default function TabLayout() {
       <Tabs.Screen
         name="order"
         options={{
-          title: "Accepted",
+          title: t("accepted"),
           tabBarIcon: ({ color }) => (
-            <MaterialIcons name="work-history" size={28} color={color} />
+            <Fontisto name="checkbox-active" size={20} color={color} />
           ),
         }}
       />
@@ -108,9 +109,10 @@ export default function TabLayout() {
       <Tabs.Screen
         name="orderinfo"
         options={{
-          title: "Order History",
+          title: t("myorders"),
           tabBarIcon: ({ color }) => (
-            <FontAwesome name="history" size={24} color={color} />
+            // <FontAwesome name="history" size={24} color={color} />
+            <MaterialIcons name="work-history" size={24} color={color} />
           ),
         }}
       />

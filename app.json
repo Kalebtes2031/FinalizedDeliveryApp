@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "DeliveryApp",
+    "name": "Yason Delivery",
     "slug": "DeliveryApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/yasonlogo.png",
+    "icon": "./assets/images/yason-icon.png",
     "scheme": "DeliveryApp",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
@@ -13,7 +13,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/images/yasonlogo.png",
+        "foregroundImage": "./assets/images/yason-icon.png",
         "backgroundColor": "#ffffff"
       },
       "package": "dev.expo.deliveryapp",
@@ -24,7 +24,6 @@
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
-    
     "experiments": {
       "typedRoutes": true
     },
@@ -32,7 +31,7 @@
       "apiUrl": "https://yasonbackend.yasonsc.com",
       "router": {},
       "eas": {
-        "projectId": "ee51fe13-23fc-4baf-bd4d-7c1eaa3722c5"
+        "projectId": "1a8c2c11-5b4d-437c-83c9-86f311d7f44a"
       }
     }
   }

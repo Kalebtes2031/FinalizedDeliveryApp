@@ -10,7 +10,7 @@ import {
   Modal,
   RefreshControl,
 } from "react-native";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useGlobalContext } from "@/context/GlobalProvider";
 import { Link } from "expo-router";
 import { useColorScheme } from "@/hooks/useColorScheme.web";
@@ -25,6 +25,7 @@ import { Ionicons } from "@expo/vector-icons";
 import SearchProducts from "@/components/SearchComponent";
 import AnimatedCountdown from "@/components/AnimatedCountdown";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import { useFocusEffect } from "@react-navigation/native";
 
 const COLORS = {
   primary: "#2D4150",
@@ -135,9 +136,11 @@ const Order = () => {
     }
   };
 
-  useEffect(() => {
-    if (isLogged) fetchAcceptedOrderss();
-  }, [isLogged]);
+  useFocusEffect(
+    useCallback(() => {
+      if (isLogged) fetchAcceptedOrderss();
+    }, [isLogged])
+  );
 
   const renderOrderItems = (items) =>
     items.map((item) => (
@@ -151,7 +154,7 @@ const Order = () => {
             style={styles.productImage}
           />
           <Text>
-            {t("price")} / {item.variant?.unit}{" "}
+            {t("price")} / {t(`${item.variant?.unit}`)}{" "}
           </Text>
         </View>
         <View style={styles.itemDetails}>
@@ -160,18 +163,18 @@ const Order = () => {
               ? item.variant.product?.item_name
               : item.variant.product?.item_name_amh}{" "}
             {parseInt(item.variant?.quantity)}
-            {item.variant?.unit}
+            {t(`${item.variant?.unit}`)}
           </Text>
           <View style={styles.priceRow}>
             <Text style={styles.itemPrice}>
-              {t("br")}
-              {item.variant?.price}
+       {i18n.language === "en" ? t("br") : ""} {item.variant?.price} {i18n.language === "amh" ? t("br") : ""}
+              
             </Text>
             <Text style={styles.itemQuantity}>x {item.quantity}</Text>
           </View>
           <Text style={styles.itemTotal}>
-            {t("total")}: {t("br")}
-            {item.total_price}
+           = {i18n.language === "en" ? t("br") : ""} {item.total_price} {i18n.language === "amh" ? t("br") : ""}
+            
           </Text>
         </View>
       </View>
@@ -179,20 +182,20 @@ const Order = () => {
 
   const renderOrderStatus = (status) => {
     let statusStyle = {};
-    let statusText = '';
-    
+    let statusText = "";
+
     switch (status.toLowerCase()) {
       case "Fully Paid":
         statusStyle = styles.statusCompleted;
-        statusText="Fully Paid"
+        statusText = "Fully Paid";
         break;
       case "pending":
-        statusStyle = [styles.statusPending]
-        statusText ="Cash on Delivery"
+        statusStyle = [styles.statusPending];
+        statusText = "Cash on Delivery";
         break;
       case "On Delivery":
-        statusStyle = [styles.statusPending]
-        statusText ="Cash on Delivery"
+        statusStyle = [styles.statusPending];
+        statusText = "Cash on Delivery";
         break;
       case "cancelled":
         statusStyle = styles.statusCancelled;
@@ -220,19 +223,20 @@ const Order = () => {
 
     return orders.map((order) => (
       <View key={order.id} style={styles.orderContainer}>
-        <View style={{ flexDirection: "row", justifyContent: "center" }}>
+        <Text style={{textAlign:"center", marginBottom:12,fontSize:16, fontWeight:600, color:"#445399"}}>{t('num')} #Yas-{order.id}</Text>
+        <View style={{ flexDirection: "row", justifyContent: "center", marginBottom:6 }}>
           <AnimatedCountdown
             scheduledTime={order.scheduled_delivery}
             warningColor={COLORS.warning}
             successColor={COLORS.success}
           />
         </View>
-        <View style={styles.orderHeader}>
+        {/* <View style={styles.orderHeader}>
           <Text style={styles.orderId}>
             {t("num")} Yas-{order.id}
           </Text>
           {renderOrderStatus(order.payment_status)}
-        </View>
+        </View> */}
 
         {/* <View style={styles.orderMeta}>
           <Text style={styles.metaText}>
@@ -243,9 +247,17 @@ const Order = () => {
 
         <Text style={styles.sectionHeader}>{t("items")}</Text>
         {renderOrderItems(order.items)}
+        <View style={styles.totalContainer}>
+          <Text style={styles.orderTotal}>{t("ordertotal")}:</Text>
+          <Text style={styles.orderTotal}>
+           {i18n.language === "en" ? t("br") : ""}
+         {order.total} {i18n.language === "amh" ? t("br") : ""}
+           
+          </Text>
+        </View>
         <View style={styles.paymentStatusContainer}>
-          <Text style={[styles.metaText, { marginRight: 5 }]}>
-           {t('customer')}
+          <Text style={[styles.metaText, { marginRight: 5, marginTop:12}]}>
+            {t("customer")}
           </Text>
         </View>
         <View
@@ -283,20 +295,15 @@ const Order = () => {
                 <Icon name="person" size={40} color="#666" />
               </View>
             )}
-           
           </View>
           <View>
-            <Text>{order.user.first_name} {order.user.last_name}</Text>
+            <Text>
+              {order.user.first_name} {order.user.last_name}
+            </Text>
             <Text>{order.user.phone_number}</Text>
           </View>
         </View>
-        <View style={styles.totalContainer}>
-          <Text style={styles.orderTotal}>{t("ordertotal")}:</Text>
-          <Text style={styles.orderTotal}>
-            {t("br")}
-            {order.total}
-          </Text>
-        </View>
+        
       </View>
     ));
   };
@@ -330,7 +337,7 @@ const Order = () => {
                 <Ionicons name="arrow-back" size={24} color="white" />
               </TouchableOpacity>
 
-              <Text style={styles.categoryTitle}>{t('accepted')}</Text>
+              <Text style={styles.categoryTitle}>{t("accepted")}</Text>
               <View></View>
             </View>
             <View
@@ -418,23 +425,23 @@ const styles = StyleSheet.create({
     backgroundColor: "#F9F9F9",
   },
   mainContainer: {
-    flex: 1,
+    // flex: 1,
   },
   header: {
-    height: 230,
-    backgroundColor: "#445399",
+    height: 130,
+    backgroundColor: "#4CAF50",
     paddingHorizontal: 20,
-    paddingTop: 50,
+    paddingTop: 10,
   },
   searchContainer: {
     paddingHorizontal: 16,
-    paddingBottom: 23,
+    paddingBottom: 13,
   },
   backButton: {
     // position: "absolute",
     // left: 20,
     // top: 40,
-    backgroundColor: "#445399",
+    backgroundColor: "#4CAF50",
     width: 40,
     height: 40,
     borderRadius: 20,
@@ -462,7 +469,8 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 16,
-    paddingVertical: 40,
+    paddingTop: 20,
+    paddingBottom: 125,
   },
   loginPromptContainer: {
     flex: 1,
@@ -495,6 +503,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     padding: 16,
     borderWidth: 1,
+    borderColor:"#4CAF50",
     // shadowColor: "#000",
     // shadowOpacity: 0.05,
     // shadowRadius: 6,
@@ -543,16 +552,19 @@ const styles = StyleSheet.create({
     backgroundColor: "#F5F5F5",
   },
   sectionHeader: {
-    fontSize: 12,
+    fontSize: 16,
     fontWeight: "600",
-    color: "#999",
+    color: "#445399",
     marginBottom: 12,
     letterSpacing: 0.8,
+    borderBottomWidth:1,
+    borderBottomColor:"#445399",
+    marginTop:8,
   },
   itemContainer: {
     flexDirection: "row",
-    marginBottom: 16,
-    paddingBottom: 16,
+    marginBottom: 6,
+    paddingBottom: 6,
     borderBottomWidth: 1,
     borderBottomColor: "#EEE",
   },
@@ -593,10 +605,11 @@ const styles = StyleSheet.create({
   totalContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 16,
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: "#EEE",
+    // marginVertical: 12,
+    paddingVertical: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: "#445399",
+    // backgroundColor:"red"
   },
   orderTotal: {
     fontSize: 16,

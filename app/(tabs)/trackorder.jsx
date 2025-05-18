@@ -16,7 +16,9 @@ import { LinearGradient } from "expo-linear-gradient";
 import AnimatedCountdown from "@/components/AnimatedCountdown";
 import { useTranslation } from "react-i18next";
 import OrderMapViewDelivery from "@/components/OrderMapViewDelivery";
-import DeliveryLocationTracker from "@/components/DeliveryLocationTracker";
+// import DeliveryLocationTracker from "@/components/DeliveryLocationTracker";
+import ShopTracking from "@/components/ShopTracking";
+import { useFocusEffect } from "@react-navigation/native";
 
 
 // Color Constants
@@ -72,11 +74,13 @@ const OrderTrackingScreen = () => {
       setLoading(false);
     }
   };
-  useEffect(() => {
-    loadData();
-    const timer = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(timer);
-  }, []);
+   useFocusEffect(
+    React.useCallback(() => {
+      loadData();
+      const timer = setInterval(() => setNow(Date.now()), 1000);
+      return () => clearInterval(timer);
+    }, [])
+  );
 
   const formatCountdown = (scheduledTime) => {
     const scheduled = new Date(scheduledTime);
@@ -104,7 +108,14 @@ const OrderTrackingScreen = () => {
     };
   };
 
-  const renderOrderItem = ({ item }) => {
+  const renderOrderItem = ({ item, section }) => {
+    const hasCustomerCoords =
+    item.customer_latitude != null && item.customer_longitude != null;
+    const nowDate = new Date(now);
+    const scheduled = new Date(item.scheduled_delivery);
+    const isMissed = scheduled < nowDate && item.status !== "Delivered";
+
+    const shouldShowMap = section.title === t("active") && hasCustomerCoords
     const timeInfo =
       item.status === "Delivered"
         ? {
@@ -125,7 +136,8 @@ const OrderTrackingScreen = () => {
           style={styles.cardHeaderNew}
         >
           <View style={styles.headerLeft}>
-            <Text style={styles.orderNumber}>ORDER #{item.id}</Text>
+            <Text style={styles.orderNumber}> 
+              {t("order")} #Yas-{item.id}</Text>
           </View>
           <View
             style={{
@@ -142,18 +154,12 @@ const OrderTrackingScreen = () => {
               source={require("@/assets/images/yasonmap.jpg")}
             /> */}
             {/* <OrderMapViewDelivery order={item} deliveryPersonId={item?.delivery_person?.user?.id} /> */}
+            {shouldShowMap && <OrderMapViewDelivery order={item}  isDriver={true} />}
             {/* <DeliveryLocationTracker deliveryPersonId="2" /> */}
 
           </View>
           <View style={styles.countdownWrapper}>
-            {item.status === "Delivered" ? (
-              <View style={styles.deliveredBadge}>
-                <Icon name="check-circle" size={18} color={timeInfo.color} />
-                <Text style={[styles.deliveredText, { color: timeInfo.color }]}>
-                  Delivered
-                </Text>
-              </View>
-            ) : (
+            {item.status !== "Delivered" && (
               <AnimatedCountdown
                 scheduledTime={item.scheduled_delivery}
                 warningColor={COLORS.warning}
@@ -174,90 +180,9 @@ const OrderTrackingScreen = () => {
         </View> */}
 
         {/* Delivery Progress */}
-        <View style={styles.progressContainer}>
-          <View style={styles.progressStep}>
-            <Icon name="check-circle" size={20} color="#4CAF50" />
-            <Text style={styles.progressLabel}>{t("confirmed")}</Text>
-          </View>
-
-          <View
-            style={[
-              styles.progressLine,
-              {
-                backgroundColor: item.prepared ? COLORS.success : COLORS.muted,
-              },
-            ]}
-          />
-
-          <View style={styles.progressStep}>
-            <Icon
-              name={item.prepared ? "check-circle" : "radio-button-unchecked"}
-              size={20}
-              color={item.prepared ? COLORS.success : COLORS.muted}
-            />
-            <Text style={styles.progressLabel}>{t("prepared")}</Text>
-          </View>
-
-          <View
-            style={[
-              styles.progressLine,
-              {
-                // backgroundColor:
-                //   item.status === "Accepted" ? COLORS.success : COLORS.muted,
-                backgroundColor:
-                  item.status === "Accepted" || item.status === "Delivered"
-                    ? COLORS.success
-                    : COLORS.muted,
-              },
-            ]}
-          />
-
-          <View style={styles.progressStep}>
-            <Icon
-              name={
-                item.status === "Accepted" || "Delivered"
-                  ? "check-circle"
-                  : "radio-button-unchecked"
-              }
-              size={20}
-              // color={
-              //   item.status === "Accepted" || "Delivered"
-              //     ? COLORS.success
-              //     : COLORS.muted
-              // }
-              color={
-                item.status === "Accepted" || item.status === "Delivered"
-                  ? COLORS.success
-                  : COLORS.muted
-              }
-            />
-            <Text style={styles.progressLabel}>{t("accepted")}</Text>
-          </View>
-          <View
-            style={[
-              styles.progressLine,
-              {
-                backgroundColor:
-                  item.status === "Delivered" ? COLORS.success : COLORS.muted,
-              },
-            ]}
-          />
-
-          <View style={styles.progressStep}>
-            <Icon
-              name={
-                item.status === "Delivered"
-                  ? "check-circle"
-                  : "radio-button-unchecked"
-              }
-              size={20}
-              color={
-                item.status === "Delivered" ? COLORS.success : COLORS.muted
-              }
-            />
-            <Text style={styles.progressLabel}>{t("delivered")}</Text>
-          </View>
-        </View>
+       {!isMissed &&
+        <ShopTracking status={item.status} prepared={item.prepared} />
+       }
 
         {/* Order Details */}
         <View style={styles.detailsContainer}>
@@ -280,18 +205,25 @@ const OrderTrackingScreen = () => {
               >
                 <View style={styles.productInfo}>
                   <Text style={styles.productName}>
-                    {product.variant.product.item_name}
+                    {i18n.language === "en"
+                      ? product.variant.product.item_name
+                      : product.variant.product.item_name_amh}
                   </Text>
 
                   <Text style={styles.productMeta}>
-                    {product.quantity}x {product.variant.price}
+                    {product.quantity} x {product.variant.price}{" "}
+                    {/* {i18n.language === "en" ? t("br") : ""}
+                    {product.total_price}{" "}
+                    {i18n.language === "amh" ? t("br") : ""} */}
                   </Text>
                 </View>
                 <View>
                   <Text style={styles.productName}>{t("subtotal")}</Text>
 
                   <Text style={styles.productMeta}>
-                    Br{product.total_price}
+                    {i18n.language === "en" ? t("br") : ""}
+                    {product.total_price}{" "}
+                    {i18n.language === "amh" ? t("br") : ""}
                   </Text>
                 </View>
               </View>
@@ -301,15 +233,16 @@ const OrderTrackingScreen = () => {
           <View style={styles.totalContainer}>
             <Text style={styles.totalLabel}>{t("totalamount")}:</Text>
             <Text style={styles.totalValue}>
-              {t("br")}
+              {i18n.language === "en" ? t("br") : ""}
               {item.total}
+              {i18n.language === "amh" ? t("br") : ""}
             </Text>
           </View>
         </View>
 
         {/* Delivery Info */}
         <View style={styles.deliveryInfo}>
-          <Icon name="local-shipping" size={20} color={COLORS.secondary} />
+          {/* <Icon name="local-shipping" size={20} color={COLORS.secondary} /> */}
           {/* <View style={styles.deliveryDetails}> */}
           {/* <Text style={styles.driverText}>
               {item.delivery_person || t("await")}
@@ -328,7 +261,7 @@ const OrderTrackingScreen = () => {
               {item?.user?.image ? (
                 <Image
                   source={{
-                    uri: `http://192.168.100.51:8000${item?.user?.image} `,
+                    uri: `https://yasonbackend.yasonsc.com${item?.user?.image} `,
                   }}
                   style={{
                     width: 60,
@@ -388,7 +321,7 @@ const OrderTrackingScreen = () => {
             data: orders.filter((o) => o.status === "Delivered"),
           },
         ]}
-        renderItem={renderOrderItem}
+        renderItem={(props) => renderOrderItem(props)}
         renderSectionHeader={({ section }) => (
           <Text style={styles.sectionHeader}>{section.title}</Text>
         )}
@@ -467,7 +400,8 @@ const styles = StyleSheet.create({
   orderNumber: {
     fontSize: 14,
     fontWeight: "500",
-    color: COLORS.muted,
+    color: "#445399",
+    textAlign:"center"
   },
   statusBadge: {
     flexDirection: "row",
@@ -481,37 +415,29 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "start",
-    padding: 12,
-    gap: 12,
-    paddingleft: 16,
+    // padding: 12,
+    gap: 6,
+    // paddingleft: 16,
     borderRadius: 10,
+    // backgroundColor:"red",
     // shadowColor: "#000",
     // shadowOffset: { width: 0, height: 2 },
     // shadowOpacity: 0.15,
     // shadowRadius: 4,
     // elevation: 3,
-    marginBottom: 8,
-  },
-  headerLeft: {
-    flex: 1,
-  },
-  orderNumber: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#2D4150",
+    // marginBottom: 8,
   },
 
   headerLeft: {
     flex: 1,
+    paddingHorizontal:14,
+    paddingTop:4
   },
-  orderNumber: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#2D4150",
-  },
+ 
   countdownWrapper: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent:"center",
   },
   deliveredBadge: {
     flexDirection: "row",
@@ -656,6 +582,7 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     marginVertical: 16,
     paddingHorizontal: 16,
+    textAlign:"center",
   },
   loadingContainer: {
     flex: 1,

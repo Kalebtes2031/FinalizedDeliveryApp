@@ -1,7 +1,7 @@
 {
   "your": "Your Order is in process",
   "thank":"Thank you!",
-  "number":"ORDER NUMBER",
+  "num":"ORDER NUMBER",
   "date":"DATE",
   "total":"Total Price",
   "br":"Br",
@@ -18,5 +18,14 @@
   "scheduled":"Scheduled",
   "orderestatus":"Order Status",
   "paymentstatus":"Payment Status",
-  "items":"Items"
+  "items":"Items",
+   "Delivered":"Delivered",
+    "Prepared":"Prepared",
+    "Accepted":"Accepted",
+    "Assigned":"Assigned",
+    "In Transit":"In Transit",
+    "Confirmed":"Confirmed",
+    "Fully Paid":"Fully Paid",
+    "Pending":"Pending",
+    "On Delivery":"Cash on Delivery"
 }

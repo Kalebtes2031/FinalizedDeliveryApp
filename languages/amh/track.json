@@ -7,10 +7,11 @@
     "br":"ብር",
     "totalamount":"ጠቅላላ ዋጋ",
     "subtotal":"ድምር ዋጋ",
-    "summary":"የትእዛዝ አጠቃላይ መረጃ",
+    "summary":"የትዕዛዝ አጠቃላይ መረጃ",
     "delivered":"ደርሶኛል",
     "prepared":"ተዘጋጅቱአል",
     "confirmed":"ታዙዋል",
     "nocompletedelivery":"የተጠናቀቀ ትዕዛዝ የለም።",
-    "noactivedelivery":"አዲስ ማድረስ የሚፈልግ ትዕዛዝ የለም።"
+    "noactivedelivery":"አዲስ ማድረስ የሚፈልግ ትዕዛዝ የለም።",
+    "order":"የትዕዛዝ ቁጥር"
 }

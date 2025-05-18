@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -18,6 +18,7 @@ import Toast from "react-native-toast-message";
 import { useWatchlist } from "@/context/WatchlistProvider";
 import { useTranslation } from "react-i18next";
 import { AcceptOrders, fetchAssignedOrders } from "@/hooks/useFetch";
+import { useFocusEffect } from "@react-navigation/native";
 
 const OrderRequest = () => {
   const { t, i18n } = useTranslation("cartscreen");
@@ -27,6 +28,7 @@ const OrderRequest = () => {
   const [localLoading, setLocalLoading] = useState(null);
   const [orders, setOrders] = useState([]);
   const router = useRouter();
+  const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -36,9 +38,11 @@ const OrderRequest = () => {
     }, 2000);
   }, []);
 
-  useEffect(() => {
-    fetchAssignedDeliveryOrders();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchAssignedDeliveryOrders();
+    }, [])
+  );
   const handleQuantityUpdate = async (itemId, newQuantity) => {};
   const handleRemoveCartItems = async (id) => {};
 
@@ -94,7 +98,7 @@ const OrderRequest = () => {
 
       Toast.show({
         type: "success",
-        text1: `Order Yas-${orderId} has been accepted Successfully `,
+        text1: t("ordernu"),
       });
     } catch (error) {
       Toast.show({
@@ -106,35 +110,35 @@ const OrderRequest = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {orders.length === 0? (
+      {orders.length === 0 ? (
         <View>
-         <View style={styles.headerContainer}>
-              <Header />
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  alignItems: "start",
-                  paddingHorizontal: 12,
-                }}
+          <View style={styles.headerContainer}>
+            <Header />
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "start",
+                paddingHorizontal: 12,
+              }}
+            >
+              <TouchableOpacity
+                onPress={() => router.back()}
+                style={{ marginHorizontal: 10, paddingHorizontal: 2 }}
+                className="border w-10 h-10 flex flex-row justify-center items-center py-1 rounded-full border-gray-300"
               >
-                <TouchableOpacity
-                  onPress={() => router.back()}
-                  style={{ marginHorizontal: 10, paddingHorizontal: 2 }}
-                  className="border w-10 h-10 flex flex-row justify-center items-center py-1 rounded-full border-gray-300"
-                >
-                  <Ionicons name="arrow-back" size={24} color="#445399" />
-                </TouchableOpacity>
-                <Text
-                  className="font-poppins-bold text-center text-primary mb-4"
-                  style={styles.headerTitle}
-                >
-                 {t('assignedorders')}
-                </Text>
-                <View></View>
-              </View>
+                <Ionicons name="arrow-back" size={24} color="#445399" />
+              </TouchableOpacity>
+              <Text
+                className="font-poppins-bold text-center text-primary mb-4"
+                style={styles.headerTitle}
+              >
+                {t("assignedorders")}
+              </Text>
+              <View style={{ width: 33 }}></View>
             </View>
-         
+          </View>
+
           <View
             style={{
               flexDirection: "column",
@@ -156,7 +160,7 @@ const OrderRequest = () => {
               }}
             >
               <Image
-                style={{width:240, height:240}}
+                style={{ width: 240, height: 240 }}
                 source={require("@/assets/images/noorder2.png")}
                 resizeMode="contain"
               />
@@ -171,27 +175,37 @@ const OrderRequest = () => {
                 marginTop: 15,
               }}
             >
-              {t('thereisno')}
+              {t("thereisno")}
             </Text>
           </View>
         </View>
       ) : (
         <>
-          <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+            onRefresh={onRefresh}
+            refreshing={refreshing}
+          >
             {/* <Header /> */}
-            <View style={styles.headerContainer}>
-              <Header />
+            {/* <View style={styles.headerContainer}>
+             
               <View
                 style={{
                   flexDirection: "row",
                   justifyContent: "space-between",
-                  alignItems: "start",
-                  paddingHorizontal: 12,
+                  alignItems: "center",
                 }}
               >
                 <TouchableOpacity
                   onPress={() => router.back()}
-                  style={{ marginHorizontal: 10, paddingHorizontal: 2 }}
+                  style={{
+                    marginHorizontal: 10,
+                    paddingHorizontal: 2,
+                    borderWidth: 1,
+                    borderRadius: 52,
+                    paddingVertical: 2,
+                    borderColor: "#445399",
+                  }}
                   className="border w-10 h-10 flex flex-row justify-center items-center py-1 rounded-full border-gray-300"
                 >
                   <Ionicons name="arrow-back" size={24} color="#445399" />
@@ -200,37 +214,211 @@ const OrderRequest = () => {
                   className="font-poppins-bold text-center text-primary mb-4"
                   style={styles.headerTitle}
                 >
-                 {t('assignedorders')}
+                  {t("assignedorders")}
                 </Text>
                 <View></View>
               </View>
-            </View>
+            </View> */}
+            {/* fhdg */}
+            <View style={styles.header}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <TouchableOpacity
+                  style={styles.backButton}
+                  onPress={() => router.back()}
+                >
+                  <Ionicons name="arrow-back" size={24} color="white" />
+                </TouchableOpacity>
 
+                <Text style={styles.categoryTitle}> {t("assignedorders")}</Text>
+                <View></View>
+              </View>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Image
+                  style={styles.productImage}
+                  source={require("@/assets/images/deliverytruck.png")}
+                />
+              </View>
+              {/* <Text style={styles.categoryTitle2}>
+              {orders.length} {t('accepted')}
+            </Text> */}
+            </View>
             <View style={styles.scrollContainers}>
               {orders.map((order) => (
                 <View key={order.id} style={styles.orderCard}>
                   <View
                     style={{
                       flexDirection: "column",
-                      justifyContent: "center",
-                      alignItems: "center",
+                      justifyContent: "start",
+                      alignItems: "start",
                     }}
                   >
                     {/* Order Header */}
                     <Text style={styles.orderNumber}>
-                      {t('num')} Yas-{order.id}
+                      {t("num")} #Yas-{order.id}
                     </Text>
+
+                    {order.items.map((item) => (
+                      <View
+                        key={item.id}
+                        style={{
+                          marginLeft: 3,
+                          flexDirection: "row",
+                          justifyContent: "start",
+                          alignItems: "start",
+                          marginBottom: 12,
+                          // gap:6
+                        }}
+                      >
+                        <View>
+                          <Image
+                            source={{
+                              uri:
+                                item.variant.product?.image ||
+                                "https://via.placeholder.com/60",
+                            }}
+                            style={{
+                              width: 60,
+                              height: 60,
+                              borderRadius: 8,
+                              marginRight: 12,
+                            }}
+                          />
+                          <Text>
+                            {t("price")} / {t(`${item.variant?.unit}`)}{" "}
+                          </Text>
+                        </View>
+                        <View
+                          style={{
+                            flex: 1,
+                            flexDirection: "row",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            paddingRight: 22,
+                          }}
+                        >
+                          <View style={styles.productInfo}>
+                            <Text style={styles.productName}>
+                              {i18n.language === "en"
+                                ? item.variant.product.item_name
+                                : item.variant.product.item_name_amh}
+                            </Text>
+
+                            <Text
+                              style={{
+                                fontSize: 12,
+                                color: "#94A3B8",
+                                marginTop: 4,
+                              }}
+                            >
+                              {item.quantity} x{" "}
+                              {i18n.language === "en" ? t("br") : ""}
+                              {item.price}{" "}
+                              {i18n.language === "amh" ? t("br") : ""}
+                            </Text>
+                          </View>
+                          <View>
+                            <Text
+                              style={{
+                                fontSize: 16,
+                                // fontWeight: "600",
+                                marginBottom: 4,
+                              }}
+                            >
+                              {t("subtotal")}
+                            </Text>
+
+                            <Text
+                              style={{
+                                fontSize: 12,
+                                color: "#94A3B8",
+                                marginTop: 4,
+                              }}
+                            >
+                              {i18n.language === "en" ? t("br") : ""}
+                              {item.total_price}{" "}
+                              {i18n.language === "amh" ? t("br") : ""}
+                            </Text>
+                          </View>
+                        </View>
+                      </View>
+                    ))}
 
                     {/* Total Items */}
-                    <Text style={styles.orderInfo}>
-                      {t('items')}: {order.items?.length ?? 0}
-                    </Text>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "flex-end",
+                        justifyContent: "flex-end",
+                        borderTopWidth: 1,
+                        borderTopColor: "#445399",
+                        borderBottomWidth: 1,
+                        borderBottomColor: "#445399",
+                        marginBottom: 4,
+                        paddingBottom: 4,
+                      }}
+                    >
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "flex-end",
+                          justifyContent: "flex-start",
+                          marginTop: 6,
+                          gap: 4,
+                          // justifyContent: "space-between",
+                          // marginTop: 16,
+                          // paddingTop: 16,
+                          // borderTopWidth: 1,
+                          // borderTopColor: "#F1F5F9",
+                        }}
+                      >
+                        <Text style={{ fontSize: 14, fontWeight: 600 }}>
+                          {t("totalamount")}:
+                        </Text>
+                        <Text style={{ fontSize: 14, fontWeight: "bold" }}>
+                          {i18n.language === "en" ? t("br") : ""}
+                          {order.total} {i18n.language === "amh" ? t("br") : ""}
+                        </Text>
+                      </View>
+                    </View>
 
                     {/* Scheduled Time */}
-                    <Text style={styles.orderInfo}>
-                      {t('scheduled')}:{" "}
-                      {new Date(order.scheduled_delivery).toLocaleString()}
-                    </Text>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        gap: 2,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        marginTop: 6,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          marginBottom: 4,
+                          color: "#445399",
+                          fontWeight: 600,
+                          width:"26%"
+                        }}
+                      >
+                        {" "}
+                        {t("scheduled")}
+                      </Text>
+                      <Text style={styles.orderInfo}>
+                        : {new Date(order.scheduled_delivery).toLocaleString()}
+                      </Text>
+                    </View>
 
                     {/* Action Buttons */}
                     <View style={styles.actionButtons}>
@@ -242,10 +430,10 @@ const OrderRequest = () => {
                       </TouchableOpacity> */}
 
                       <TouchableOpacity
-                        style={[styles.button, { backgroundColor: "#4CAF50" }]}
+                        style={[styles.button, { backgroundColor: "#445399" }]}
                         onPress={() => handleAccept(order.id)}
                       >
-                        <Text style={styles.buttonText}>{t('accept')}</Text>
+                        <Text style={styles.buttonText}>{t("accept")}</Text>
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -263,6 +451,46 @@ const OrderRequest = () => {
 
 // Add these new styles to your StyleSheet
 const styles = StyleSheet.create({
+  productImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 8,
+    marginRight: 12,
+  },
+  header: {
+    height: 130,
+    backgroundColor: "#445399",
+    paddingHorizontal: 20,
+    paddingTop: 10,
+  },
+  searchContainer: {
+    paddingHorizontal: 16,
+    paddingBottom: 13,
+  },
+  backButton: {
+    // position: "absolute",
+    // left: 20,
+    // top: 40,
+    backgroundColor: "#445399",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 2,
+    borderWidth: 1,
+    borderColor: "white",
+  },
+  categoryTitle: {
+    // position: "absolute",
+    // top: 100,
+    // left: 20,
+    color: "#fff",
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center",
+    marginRight: 32,
+  },
   container: {
     flex: 1,
     backgroundColor: "#fff",
@@ -284,13 +512,15 @@ const styles = StyleSheet.create({
     flexDirection: "column",
     justifyContent: "start",
     alignItems: "start",
-    paddingHorizontal: 10,
+    paddingHorizontal: 14,
+
     // borderBottomWidth: 1,
     // borderBottomColor: "#eee",
   },
   orderCard: {
-    backgroundColor: "#D6F3D5",
-    padding: 16,
+    // backgroundColor: "#D6F3D5",
+    backgroundColor: "rgba(150, 166, 234, 0.4)",
+    padding: 12,
     marginVertical: 8,
     marginHorizontal: 12,
     borderRadius: 12,
@@ -304,19 +534,26 @@ const styles = StyleSheet.create({
   orderNumber: {
     fontSize: 16,
     fontWeight: "bold",
-    marginBottom: 4,
+    marginBottom: 12,
+    textAlign: "center",
+    color: "#445399",
+    borderBottomWidth: 1,
+    borderBottomColor: "#445399",
+    paddingBottom: 6,
   },
 
   orderInfo: {
     fontSize: 14,
     marginBottom: 4,
-    color: "#333",
+    color: "#445399",
+    fontWeight: 600,
+    fontStyle: "italic",
   },
 
   actionButtons: {
     flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems:"flex-end",
+    justifyContent: "center",
+    alignItems: "center",
     marginTop: 12,
     gap: 10,
   },
@@ -332,6 +569,8 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "600",
     fontSize: 15,
+    width:"100%",
+    textAlign:"center",
   },
 
   loadingContainer: {
@@ -380,17 +619,20 @@ const styles = StyleSheet.create({
     fontSize: 10,
     fontWeight: "bold",
   },
-  backButton: {
-    marginRight: 10,
-    paddingHorizontal: 12,
-  },
+  // backButton: {
+  //   marginRight: 10,
+  //   paddingHorizontal: 12,
+  // },
   headerTitle: {
     fontSize: 18,
     fontWeight: "bold",
+    color: "#445399",
+    marginRight: 16,
+    marginTop: 16,
   },
   // ... keep the rest of your existing styles
   scrollContainers: {
-    padding: 16,
+    paddingHorizontal: 12,
   },
   itemContainer: {
     flexDirection: "row",
@@ -403,12 +645,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
-  },
-  productImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 8,
-    marginRight: 16,
   },
   detailsContainer: {
     flex: 1,

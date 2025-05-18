@@ -1,6 +1,8 @@
 import { StatusBar } from "expo-status-bar";
 import { Redirect, router } from "expo-router";
-import { View, Text, Image, TouchableOpacity, FlatList, Dimensions } from "react-native";
+import { View, Text, Image, TouchableOpacity, FlatList, Dimensions,PixelRatio,
+  Linking,
+  StyleSheet, } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as SecureStore from "expo-secure-store";
 import Toast from "react-native-toast-message";
@@ -12,6 +14,7 @@ import CustomButton from "@/components/CustomButton";
 import { useGlobalContext } from "@/context/GlobalProvider";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
+const { widths } = Dimensions.get("window");
 
 const Welcome = () => {
   const colorScheme = useColorScheme();
@@ -45,7 +48,7 @@ const Welcome = () => {
   useEffect(() => {
     const checkOnboarding = async () => {
       try {
-        const value = await SecureStore.getItemAsync("onboardingCompleted");
+        const value = await SecureStore.getItemAsync("onboardingCompletedDelivery");
         setShowOnboarding(value !== "true");
       } catch (e) {
         setShowOnboarding(true);
@@ -70,7 +73,7 @@ const Welcome = () => {
 
   const completeOnboarding = async () => {
     try {
-      await SecureStore.setItemAsync("onboardingCompleted", "true");
+      await SecureStore.setItemAsync("onboardingCompletedDelivery", "true");
     } catch (error) {
       Toast.show({
         type: "error",
@@ -167,7 +170,7 @@ const Welcome = () => {
                 source={item.image}
                 style={{
                   width: SCREEN_WIDTH * 0.8,
-                  height: 300,
+                  height: 260,
                   resizeMode: "contain",
                 }}
                 accessibilityLabel={item.title}
@@ -178,7 +181,7 @@ const Welcome = () => {
                   fontWeight: "bold",
                   color: colorScheme === "dark" ? "#fff" : "#000",
                   textAlign: "center",
-                  marginTop: 20,
+                  marginTop: 10,
                 }}
               >
                 {item.title}
@@ -220,7 +223,11 @@ const Welcome = () => {
         </View>
 
         {/* Footer */}
-        <View style={{ marginBottom: 32 }}>
+        <View style={{ marginBottom:12,
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            gap: 12, }}>
           {currentSlide === slides.length - 1 ? (
             <>
               <CustomButton
@@ -236,7 +243,7 @@ const Welcome = () => {
                   borderWidth: 2,
                   borderColor: "#445399",
                   borderRadius: 32,
-                  paddingVertical: 16,
+                  paddingVertical: 8,
                   alignItems: "center",
                   width:304
                 }}
@@ -265,6 +272,15 @@ const Welcome = () => {
             />
           )}
         </View>
+         <View style={styles.poweredBy}>
+          <Text style={styles.poweredText}>Powered by </Text>
+          <Text
+            style={styles.poweredBold}
+            onPress={() => Linking.openURL("https://activetechet.com")}
+          >
+            Active Technology PLC
+          </Text>
+        </View>
       </View>
 
       <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
@@ -272,5 +288,24 @@ const Welcome = () => {
     </SafeAreaView>
   );
 };
-
+const responsiveSize = (size) => {
+  const scaleFactor = widths / 375; // Base width from design (e.g., iPhone 375)
+  return size * scaleFactor;
+};
+const styles = StyleSheet.create({
+  poweredBy: {
+    alignItems: "center",
+    marginTop: responsiveSize(10),
+    marginBottom: responsiveSize(4),
+  },
+  poweredText: {
+    textAlign: "center",
+    fontSize: responsiveSize(11),
+    color: "#1f2937",
+  },
+  poweredBold: {
+    fontWeight: "bold",
+    color: "#8F3C01",
+  },
+});
 export default Welcome;
