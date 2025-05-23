@@ -3,7 +3,7 @@
   "first_name": "First Name",
   "last_name": "Father Name",
   "phone_number": "Phone Number",
-  "username": "Username",
+  "username_or_email": "Username or Email",
   "email": "Email address",
   "password": "Password",
   "forgot": "Forgot Password?",
@@ -13,5 +13,6 @@
   "privacy_policy": "I have read the Privacy Policy",
   "signup": "Sign Up",
   "dont":"Don't have an account?",
-    "signin":"Sign In"
+    "signin":"Sign In",
+    "fill":"Please fill all fields"
 }

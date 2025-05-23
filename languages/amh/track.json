@@ -1,6 +1,6 @@
 {
-    "active":"ትዕዛዞች ይከታተሉ",
-    "completed":"የተቀበሉት ትዕዛዞች",
+    "active":"በመንገድ ላይ",
+    "completed":"ያለቁ ትዕዛዞች",
     "noorder":"ምንም ትእዛዝ የለም",
     "loading":"በትዕግስት ይጠብቁ...",
     "await":"አድራሽ ሰው አልተመደበም",
@@ -12,6 +12,8 @@
     "prepared":"ተዘጋጅቱአል",
     "confirmed":"ታዙዋል",
     "nocompletedelivery":"የተጠናቀቀ ትዕዛዝ የለም።",
+    "nomissedelivery":"ሰእቱ ያለፈበት ትዕዛዝ የለም።",
     "noactivedelivery":"አዲስ ማድረስ የሚፈልግ ትዕዛዝ የለም።",
-    "order":"የትዕዛዝ ቁጥር"
+    "order":"የትዕዛዝ ቁጥር",
+    "missed": "ቀናቸው ያለፉ ትዕዛዞች"
 }

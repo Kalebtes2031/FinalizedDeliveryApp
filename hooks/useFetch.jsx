@@ -341,11 +341,20 @@ export const fetchAcceptedOrders = async () => {
     const response = await auth.get(`delivery/orders/history/accepted/`);
     return response.data;
 };
+export const fetchNotReadyOrders = async () => {
+    const response = await auth.get(`delivery/orders/history/ready/`);
+    return response.data;
+};
+
+export const confirmOrder = async (id) => {
+  const response = await auth.post(`delivery/orders/${id}/ready-to-go/`);
+  return response.data;
+};
+
 export const fetchDeliveredOrders = async () => {
     const response = await auth.get(`delivery/orders/history/delivered/`);
     return response.data;
 };
-
 
 
 export const updateUserProfile = async (formDataToSend) => {

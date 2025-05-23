@@ -6,7 +6,8 @@
     "await":"Awaiting driver assignment",
     "br":"Br",
     "totalamount":"Total Amount",
-    
+      "missed": "Missed Deliveries",
+
     "subtotal":"Subtotal",
     "summary":"Order Summary",
     "delivered":"Delivered",
@@ -14,5 +15,6 @@
     "confirmed":"Confirmed",
     "nocompletedelivery":"There is no Completed Delivery",
     "noactivedelivery":"There is no Active Delivery",
+   "nomissedelivery": "There is no Missed Delivery",
     "order":"Order"
 }

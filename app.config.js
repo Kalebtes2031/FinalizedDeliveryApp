@@ -11,10 +11,10 @@ export default ({ config }) => ({
     [
       "expo-splash-screen",
       {
-        image: "./assets/images/yasonlogo.png",
+        image: "./assets/images/yasonlogodelivery.png",
         imageWidth: 200,
         resizeMode: "contain",
-        backgroundColor: "#ffffff",
+        backgroundColor: "#445399",
       },
     ],
     ["@maplibre/maplibre-react-native"],

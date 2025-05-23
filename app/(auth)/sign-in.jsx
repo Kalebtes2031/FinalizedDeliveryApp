@@ -35,31 +35,35 @@ const SignIn = () => {
   const colorScheme = useColorScheme();
   const { setUser, setIsLogged } = useGlobalContext();
   const [form, setForm] = useState({
-    username: "",
+    login: "",
     password: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [currentLanguage, setCurrentLanguage] = useState("EN");
 
   const submit = async () => {
-    if (!form.username || !form.password) {
+    if (!form.login || !form.password) {
       return Toast.show({
         type: "info",
-        text1: "Please fill all fields",
+        text1: t("fill"),
       });
     }
 
     setIsSubmitting(true);
     try {
-      const result = await GET_AUTH(form);
-      console.log("Auth response hey:", result); // Check response structure
+      const result = await GET_AUTH({
+        login: form.login,
+        password: form.password,
+      });
+      console.log("Auth response:", result); // Check response structure
 
       // Store both tokens
-      // await AsyncStorage.multiSet([
-      //   ["access", result.access],
-      //   ["refresh", result.refresh],
-      // ]);
+      await AsyncStorage.multiSet([
+        ["accessToken", result.access],
+        ["refreshToken", result.refresh],
+      ]);
 
       // Fetch user profile after successful login
       const profile = await USER_PROFILE();
@@ -81,20 +85,38 @@ const SignIn = () => {
       Toast.show({
         type: "error",
         text1: "Authentication failed",
-        text2: "Invalid credentials or server error",
+        text2: extractErrorDetails(error),
       });
     } finally {
       setIsSubmitting(false);
     }
   };
+ const extractErrorDetails = (error) => {
+    if (error?.response?.data) {
+      const data = error.response.data;
 
+      // If it's a simple error message
+      if (typeof data === "string") return data;
+
+      // If it's a dict of field-specific errors
+      const messages = Object.entries(data)
+        .map(
+          ([key, value]) =>
+            `${key}: ${Array.isArray(value) ? value.join(", ") : value}`
+        )
+        .join("\n");
+
+      return messages || "An unknown error occurred.";
+    }
+    return "An unknown error occurred.";
+  };
   useEffect(() => {
     async function checkOnboarding() {
-      const check = await SecureStore.getItemAsync("onboardingCompletedDelivery");
-      console.log("onboardingCompletedDelivery:", check);
+      const check = await SecureStore.getItemAsync("onboardingCompleted");
+      console.log("onboardingCompleted:", check);
 
       if (check === "true") {
-        await SecureStore.deleteItemAsync("onboardingCompletedDelivery");
+        await SecureStore.deleteItemAsync("onboardingCompleted");
         console.log("Onboarding completed, deleting key.");
       }
     }
@@ -141,10 +163,10 @@ const SignIn = () => {
           <View style={styles.inputContainer}>
             <TextInput
               style={styles.input}
-              placeholder={t("username")}
+              placeholder={t("username_or_email")}
               placeholderTextColor="#888"
-              value={form.username}
-              onChangeText={(e) => setForm({ ...form, username: e })}
+              value={form.login}
+              onChangeText={(e) => setForm({ ...form, login: e })}
             />
           </View>
 
@@ -176,6 +198,7 @@ const SignIn = () => {
               handlePress={submit}
               containerStyles={styles.button}
               isLoading={isSubmitting}
+              disabled={isSubmitting}  
             />
           </View>
 
@@ -187,15 +210,13 @@ const SignIn = () => {
           </View>
 
           <View style={styles.poweredBy}>
-            <Text style={styles.poweredText}>
-              Powered by{" "}
+            <Text style={styles.poweredText}>Powered by </Text>
+            <Text
+              style={styles.poweredBold}
+              onPress={() => Linking.openURL("https://activetechet.com")}
+            >
+              Active Technology PLC
             </Text>
-              <Text
-                style={styles.poweredBold}
-                onPress={() => Linking.openURL("https://activetechet.com")}
-              >
-                Active Technology PLC
-              </Text>
           </View>
         </ScrollView>
       </View>

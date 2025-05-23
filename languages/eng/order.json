@@ -39,5 +39,6 @@
   "Confirmed": "Confirmed",
   "Fully Paid": "Fully Paid",
   "Pending": "Pending",
-  "On Delivery": "Cash on Delivery"
+  "On Delivery": "Cash on Delivery",
+  "go":"Ready"
 }

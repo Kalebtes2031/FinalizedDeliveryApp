@@ -15,7 +15,7 @@ import { useGlobalContext } from "@/context/GlobalProvider";
 import { Link } from "expo-router";
 import { useColorScheme } from "@/hooks/useColorScheme.web";
 import Header from "@/components/Header";
-import { fetchAcceptedOrders } from "@/hooks/useFetch";
+import { fetchNotReadyOrders, confirmOrder } from "@/hooks/useFetch";
 import { format } from "date-fns";
 import { FontAwesome } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -49,6 +49,7 @@ const Order = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [paymentType, setPaymentType] = useState("Direct Bank Payment");
   const [refreshing, setRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -122,7 +123,7 @@ const Order = () => {
 
   const fetchAcceptedOrderss = async () => {
     try {
-      const result = await fetchAcceptedOrders();
+      const result = await fetchNotReadyOrders();
       // Sort the orders in descending order (newest first)
       const sortedResult = result.sort(
         (a, b) => new Date(b.created_at) - new Date(a.created_at)
@@ -141,6 +142,21 @@ const Order = () => {
       if (isLogged) fetchAcceptedOrderss();
     }, [isLogged])
   );
+   const handleConfirm = async (orderId) => {
+    // setConfirmingId(orderId);
+    try {
+      setIsLoading(true)
+      await confirmOrder(orderId);
+      route.push('/(tabs)/trackorder')
+
+      // await fetchAcceptedOrderss(); // re‑fetch to update sections
+    } catch (err) {
+      console.error("Confirm failed", err);
+    } finally {
+      // setConfirmingId(null);
+      setIsLoading(false);
+    }
+  };
 
   const renderOrderItems = (items) =>
     items.map((item) => (
@@ -167,14 +183,14 @@ const Order = () => {
           </Text>
           <View style={styles.priceRow}>
             <Text style={styles.itemPrice}>
-       {i18n.language === "en" ? t("br") : ""} {item.variant?.price} {i18n.language === "amh" ? t("br") : ""}
-              
+              {i18n.language === "en" ? t("br") : ""} {item.variant?.price}{" "}
+              {i18n.language === "amh" ? t("br") : ""}
             </Text>
             <Text style={styles.itemQuantity}>x {item.quantity}</Text>
           </View>
           <Text style={styles.itemTotal}>
-           = {i18n.language === "en" ? t("br") : ""} {item.total_price} {i18n.language === "amh" ? t("br") : ""}
-            
+            = {i18n.language === "en" ? t("br") : ""} {item.total_price}{" "}
+            {i18n.language === "amh" ? t("br") : ""}
           </Text>
         </View>
       </View>
@@ -223,8 +239,24 @@ const Order = () => {
 
     return orders.map((order) => (
       <View key={order.id} style={styles.orderContainer}>
-        <Text style={{textAlign:"center", marginBottom:12,fontSize:16, fontWeight:600, color:"#445399"}}>{t('num')} #Yas-{order.id}</Text>
-        <View style={{ flexDirection: "row", justifyContent: "center", marginBottom:6 }}>
+        <Text
+          style={{
+            textAlign: "center",
+            marginBottom: 12,
+            fontSize: 16,
+            fontWeight: 600,
+            color: "#445399",
+          }}
+        >
+          {t("num")} #Yas-{order.id}
+        </Text>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "center",
+            marginBottom: 6,
+          }}
+        >
           <AnimatedCountdown
             scheduledTime={order.scheduled_delivery}
             warningColor={COLORS.warning}
@@ -250,16 +282,21 @@ const Order = () => {
         <View style={styles.totalContainer}>
           <Text style={styles.orderTotal}>{t("ordertotal")}:</Text>
           <Text style={styles.orderTotal}>
-           {i18n.language === "en" ? t("br") : ""}
-         {order.total} {i18n.language === "amh" ? t("br") : ""}
-           
+            {i18n.language === "en" ? t("br") : ""}
+            {order.total} {i18n.language === "amh" ? t("br") : ""}
           </Text>
         </View>
+        {order?.customer_address &&
+          <View style={{flexDirection:"row", justifyContent:"flex-end", alignItems:"flex-end", marginTop:12}}> 
+         <Text style={{textAlign:"flex-end", color:"#EB5B00"}}>{order?.customer_address}</Text> 
+         </View>
+         }
         <View style={styles.paymentStatusContainer}>
-          <Text style={[styles.metaText, { marginRight: 5, marginTop:12}]}>
+          <Text style={[styles.metaText, { marginRight: 5, marginTop: 12 }]}>
             {t("customer")}
           </Text>
         </View>
+
         <View
           style={{
             display: "flex",
@@ -271,7 +308,9 @@ const Order = () => {
           <View>
             {order.user.image ? (
               <Image
-                source={{ uri: order.user.image }}
+                source={{
+                  uri: `https://yasonbackend.yasonsc.com${order.user.image}`,
+                }}
                 style={{
                   width: 60,
                   height: 60,
@@ -302,8 +341,30 @@ const Order = () => {
             </Text>
             <Text>{order.user.phone_number}</Text>
           </View>
+          {order.status === "In Transit" && (
+              <TouchableOpacity
+                style={[styles.button, { backgroundColor: "#4CAF50" }]}
+                onPress={() => handleConfirm(order.id)}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                    <ActivityIndicator color="#fff" />
+                  ) : (
+                    <Text
+                      style={{
+                        color: "#fff",
+                        fontWeight: "600",
+                        fontSize: i18n.language === "en" ? 15 : 12,
+                        width: "100%",
+                        textAlign: "center",
+                      }}
+                    >
+                      {t("go")}
+                    </Text>
+                  )}
+              </TouchableOpacity>
+            )}
         </View>
-        
       </View>
     ));
   };
@@ -420,6 +481,20 @@ const Order = () => {
 export default Order;
 
 const styles = StyleSheet.create({
+  button: {
+    width: 90,
+    marginLeft: 22,
+    paddingVertical: 10,
+    borderRadius: 58,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#fff",
+    fontWeight: "600",
+    fontSize: 15,
+    width: "100%",
+    textAlign: "center",
+  },
   container: {
     flex: 1,
     backgroundColor: "#F9F9F9",
@@ -503,7 +578,7 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     padding: 16,
     borderWidth: 1,
-    borderColor:"#4CAF50",
+    borderColor: "#4CAF50",
     // shadowColor: "#000",
     // shadowOpacity: 0.05,
     // shadowRadius: 6,
@@ -557,9 +632,9 @@ const styles = StyleSheet.create({
     color: "#445399",
     marginBottom: 12,
     letterSpacing: 0.8,
-    borderBottomWidth:1,
-    borderBottomColor:"#445399",
-    marginTop:8,
+    borderBottomWidth: 1,
+    borderBottomColor: "#445399",
+    marginTop: 8,
   },
   itemContainer: {
     flexDirection: "row",
@@ -709,21 +784,21 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontSize: 14,
   },
-  button: {
-    height: 30,
-    paddingVertical: 4,
-    paddingHorizontal: 12,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: "#D1D5DB", // Gray-300
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  buttonText: {
-    fontSize: 12,
-    fontFamily: "System", // Replace with your font family if custom
-    color: "white",
-  },
+  // button: {
+  //   height: 30,
+  //   paddingVertical: 4,
+  //   paddingHorizontal: 12,
+  //   borderRadius: 6,
+  //   borderWidth: 1,
+  //   borderColor: "#D1D5DB", // Gray-300
+  //   justifyContent: "center",
+  //   alignItems: "center",
+  // },
+  // buttonText: {
+  //   fontSize: 12,
+  //   fontFamily: "System", // Replace with your font family if custom
+  //   color: "white",
+  // },
   partialPaymentButton: {
     backgroundColor: "#F59E0B", // Yellow-500
     marginTop: 12,
